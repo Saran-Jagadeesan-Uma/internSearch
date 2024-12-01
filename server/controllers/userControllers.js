@@ -59,8 +59,125 @@ const registerUser = async(req,res)=>{
     }
 }
 
+const userEduAppInfo  =async(req,res)=>{
+    const { username } = req.params;
+    db.query("CALL GetApplicantUniversityDetails(?)", [username], async (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (results.length === 0) return res.status(400).json({ message: 'Invalid username or password' });
+                
+        const user = results[0];
+    
+        return res.json(user);
+    });
+}
+
+const userWorkAppInfo  =async(req,res)=>{
+    const { username } = req.params;
+    db.query("CALL GetWorksInInfoByUsername(?)", [username], async (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (results.length === 0) return res.status(400).json({ message: 'Invalid username or password' });
+                
+        const user = results[0];
+    
+        return res.json(user);
+    });
+}
+
+const updateUserAppInfo = async (req, res) => {
+    const { username } = req.params;
+    const {
+        FIRST_NAME,
+        LAST_NAME,
+        GENDER,
+        DATE_OF_BIRTH,
+        ADDRESS_STREET_NAME,
+        ADDRESS_STREET_NUM,
+        ADDRESS_TOWN,
+        ADDRESS_STATE,
+        ADDRESS_ZIPCODE,
+        RACE,
+        VETERAN_STATUS,
+        DISABILITY_STATUS,
+        CITIZENSHIP_STATUS,
+        education,
+        workExperience
+    } = req.body;
+
+    const connection = db.promise(); // Assuming db is the database connection object
+
+    try {
+        await connection.query('START TRANSACTION');
+        // Call the stored procedure
+        await connection.query('CALL update_user_app_info(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)', [
+            username,
+            FIRST_NAME,
+            LAST_NAME,
+            GENDER,
+            DATE_OF_BIRTH,
+            ADDRESS_STREET_NAME,
+            ADDRESS_STREET_NUM,
+            ADDRESS_TOWN,
+            ADDRESS_STATE,
+            ADDRESS_ZIPCODE,
+            RACE,
+            VETERAN_STATUS,
+            DISABILITY_STATUS,
+            CITIZENSHIP_STATUS
+        ]);
+
+        await connection.query('DELETE FROM Applicant_University WHERE USERNAME = ?', [username]);
+
+        const insertEducationPromises = education.map(async (edu) => {
+            gradDate = edu.gradDate;
+            if(edu.graddate == ''){
+                gradDate = null;
+            }
+            await connection.query('INSERT INTO Applicant_University (USERNAME, UNIVERSITY, GPA, DEGREE, MAJOR, GRAD_DATE) VALUES (?, ?, ?, ?, ?, ?)', [
+                username,
+                edu.universityName,
+                edu.gpa,
+                edu.degree,
+                edu.major,
+                gradDate
+            ]);
+        });
+
+        await connection.query('DELETE FROM WorksIn WHERE USERNAME = ?', [username]);
+
+        const insertWorkExpPromises = workExperience.map(async (we) => {
+           
+            await connection.query('INSERT INTO WorksIn (USERNAME, COMPANY_NAME, SALARY, MONTHS, POSITION,DESCRIPTION) VALUES (?, ?, ?, ?, ?, ?)', [
+                username,
+                we.company,
+                we.salary,
+                we.months,
+                we.role,
+                we.description
+            ]);
+        });
+
+
+        // Wait for all insert queries to finish
+        await Promise.all(insertEducationPromises);
+        await Promise.all(insertWorkExpPromises);
+
+        await connection.query('COMMIT');
+
+        // Send success response
+        res.status(200).json({ message: 'User Profile information updated successfully.' });
+    } catch (error) {
+        console.error('Error updating User Profile info:', error);
+        res.status(500).json({ message: 'Failed to update User Profile information.' });
+    }
+};
+
+
+
 module.exports = {
     registerUser,
     loginUser,
-    userAppInfo
+    userAppInfo,
+    userEduAppInfo,
+    userWorkAppInfo,
+    updateUserAppInfo
 }

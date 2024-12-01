@@ -1,6 +1,5 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { IoIosNotifications } from "react-icons/io";
 import { MdWorkHistory } from "react-icons/md";
 import { CiUser } from "react-icons/ci";
 import "./Nav.css";
@@ -37,9 +36,7 @@ const Nav = ({ handleInputChange, query }) => {
 
         {/* Profile and Icons Section */}
         <div className="profile-container">
-          <Link to="/notifications" className="nav-link">
-            <IoIosNotifications className="nav-icons" />
-          </Link>
+          
           <Link to="/applicationHistory" className="nav-link">
             <MdWorkHistory className="nav-icons" />
           </Link>

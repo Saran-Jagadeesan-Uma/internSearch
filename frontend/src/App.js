@@ -10,7 +10,6 @@ import Sidebar from "./Sidebar/Sidebar";
 import Card from "./components/Card";
 import Profile from "./Pages/Profile";
 import ApplicationHistory from "./Pages/ApplicationHistory";
-import Notifications from "./Pages/Notifications";
 import Login from "./components/Login"
 import "./index.css";
 import Register from "./components/Register";
@@ -106,12 +105,7 @@ function App() {
           <div className="home-content"><ApplicationHistory /></div>
           </PrivateRoute>
           } />
-        <Route path="/notifications" element={
-          <PrivateRoute>
-          <Navigation query={query} handleInputChange={handleInputChange} />
-          <div className="home-content"><Notifications /></div>
-          </PrivateRoute>
-          } />
+        
           <Route path="/login" element={<Login />} /> 
           <Route path="/register" element={<Register />}/>
         

@@ -12,7 +12,6 @@ CREATE TABLE IF NOT EXISTS AppUser (
     EMAIL VARCHAR(255) NOT NULL UNIQUE
 );
 
-
 -- Creating a table for App Admin's Detail
 CREATE TABLE IF NOT EXISTS AppAdmin (
     USERNAME VARCHAR(255) UNIQUE,
@@ -32,6 +31,7 @@ CREATE TABLE IF NOT EXISTS University (
     RANKING INT,
     TYPE VARCHAR(50) NOT NULL
 );
+
 
 -- Creating a table for Applicant Details
 CREATE TABLE IF NOT EXISTS Applicant (
@@ -78,21 +78,22 @@ CREATE TABLE IF NOT EXISTS Company (
     NAME VARCHAR(255) NOT NULL UNIQUE,
     WEBSITE VARCHAR(255),
     INDUSTRY VARCHAR(255) NOT NULL,
-    FOUNDED_ON DATE NOT NULL,
-    PRIMARY KEY (NAME, FOUNDED_ON)
+    FOUNDED_ON DATE,
+    PRIMARY KEY (NAME)
 );
 
+DROP TABLE IF EXISTS WorksIn;
 -- Table to denote the many-to-many relationship between Applicant and Company
 CREATE TABLE IF NOT EXISTS WorksIn (
-    APPLICANT_ID INT,
+    USERNAME VARCHAR(255),
     COMPANY_NAME VARCHAR(255),
-    COMPANY_FOUNDED_ON DATE,
     SALARY DECIMAL(10, 2) NOT NULL,
     MONTHS INT NOT NULL,
     POSITION VARCHAR(255) NOT NULL,
-    FOREIGN KEY (APPLICANT_ID) REFERENCES Applicant(APPLICANT_ID),
-    FOREIGN KEY (COMPANY_NAME, COMPANY_FOUNDED_ON) REFERENCES Company(NAME, FOUNDED_ON),
-    PRIMARY KEY (APPLICANT_ID, COMPANY_NAME, COMPANY_FOUNDED_ON)
+    DESCRIPTION TEXT,
+    FOREIGN KEY (USERNAME) REFERENCES Applicant(USERNAME) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (COMPANY_NAME) REFERENCES Company(NAME) ON UPDATE CASCADE ON DELETE CASCADE,
+    PRIMARY KEY (USERNAME, COMPANY_NAME,POSITION)
 );
 
 -- Create A table that stores Postings
@@ -144,11 +145,10 @@ CREATE TABLE IF NOT EXISTS Posts (
     POST_ID INT,
     ROLE_NAME VARCHAR(255) NOT NULL,
     COMPANY_NAME VARCHAR(255) NOT NULL,
-    COMPANY_FOUNDED_ON DATE NOT NULL,
-    PRIMARY KEY (POST_ID, ROLE_NAME, COMPANY_NAME, COMPANY_FOUNDED_ON),
+    PRIMARY KEY (POST_ID, ROLE_NAME, COMPANY_NAME),
     FOREIGN KEY (POST_ID) REFERENCES Posting(POST_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY (ROLE_NAME) REFERENCES Intern_Role(ROLE_NAME) ON UPDATE CASCADE ON DELETE CASCADE,
-    FOREIGN KEY (COMPANY_NAME, COMPANY_FOUNDED_ON) REFERENCES Company(NAME, FOUNDED_ON) ON UPDATE CASCADE ON DELETE CASCADE
+    FOREIGN KEY (COMPANY_NAME) REFERENCES Company(NAME) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 -- Table that stores the applicant's skill and required skills
@@ -179,6 +179,136 @@ CREATE TABLE IF NOT EXISTS Applicant_Skills (
     FOREIGN KEY (SKILL_NAME, SKILL_LEVEL) REFERENCES Skill(SKILL_NAME, LEVEL)
 );
 
+-- ---------------------------------------
+DELIMITER $$
+CREATE PROCEDURE GetApplicantInfo(IN input_username VARCHAR(255))
+BEGIN
+    SELECT 
+        A.*,
+        U.* 
+    FROM 
+        Applicant A
+    JOIN 
+        AppUser  U ON A.USERNAME = U.USERNAME
+    WHERE 
+        A.USERNAME = input_username;
+END $$
+
+DELIMITER ;
+
+-- ----------------------------------------------------------------------
+DELIMITER $$
+
+CREATE PROCEDURE GetApplicantUniversityDetails (
+    IN p_username VARCHAR(255)
+)
+BEGIN
+    SELECT 
+        *
+    FROM 
+        Applicant_University
+    WHERE 
+        USERNAME = p_username;
+END $$
+
+DELIMITER ;
+
+-- ---------------------------------------
+DROP PROCEDURE IF EXISTS GetWorksInInfoByUsername;
+DELIMITER $$
+
+CREATE PROCEDURE GetWorksInInfoByUsername (
+    IN input_username VARCHAR(255)
+)
+BEGIN
+    SELECT 
+        w.USERNAME,
+        w.COMPANY_NAME,
+        w.SALARY,
+        w.MONTHS,
+        w.DESCRIPTION,
+        w.POSITION,
+        c.WEBSITE,
+        c.INDUSTRY
+    FROM 
+        WorksIn w
+    INNER JOIN 
+        Company c ON w.COMPANY_NAME = c.NAME
+    WHERE 
+        w.USERNAME = input_username;
+END $$
+
+DELIMITER ;
+-- -----------------------------
+DELIMITER $$
+CREATE TRIGGER Prevent_Duplicate_Applications
+BEFORE INSERT ON Applies
+FOR EACH ROW
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM Applies
+        WHERE APPLICANT_ID = NEW.APPLICANT_ID AND POST_ID = NEW.POST_ID
+    ) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Duplicate application detected';
+    END IF;
+END $$
+DELIMITER ;
+-- ----------------------------------
+DELIMITER $$
+
+CREATE PROCEDURE update_user_app_info (
+    IN p_username VARCHAR(255),
+    IN p_first_name VARCHAR(255),
+    IN p_last_name VARCHAR(255),
+    IN p_gender ENUM('Male', 'Female', 'Other'),
+    IN p_date_of_birth DATE,
+    IN p_address_street_name VARCHAR(255),
+    IN p_address_street_num INT,
+    IN p_address_town VARCHAR(255),
+    IN p_address_state VARCHAR(50),
+    IN p_address_zipcode VARCHAR(20),
+    IN p_race ENUM('Asian', 'Black', 'Hispanic', 'White', 'Native American', 'Other'),
+    IN p_veteran_status BOOLEAN,
+    IN p_disability_status BOOLEAN,
+    IN p_citizenship_status VARCHAR(50)
+)
+BEGIN
+    -- Start a transaction
+    START TRANSACTION;
+
+    -- Update Applicant table
+    UPDATE Applicant
+    SET 
+        GENDER = p_gender, 
+        DATE_OF_BIRTH = p_date_of_birth, 
+        ADDRESS_STREET_NAME = p_address_street_name, 
+        ADDRESS_STREET_NUM = p_address_street_num, 
+        ADDRESS_TOWN = p_address_town, 
+        ADDRESS_STATE = p_address_state, 
+        ADDRESS_ZIPCODE = p_address_zipcode, 
+        RACE = p_race, 
+        VETERAN_STATUS = p_veteran_status, 
+        DISABILITY_STATUS = p_disability_status, 
+        CITIZENSHIP_STATUS = p_citizenship_status
+    WHERE USERNAME = p_username;
+
+    -- Update AppUser table
+    UPDATE AppUser
+    SET 
+        FIRST_NAME = p_first_name, 
+        LAST_NAME = p_last_name
+    WHERE USERNAME = p_username;
+
+    -- Commit the transaction
+    COMMIT;
+END$$
+
+DELIMITER ;
+
+-- -------------------------------
+
+
 INSERT INTO University (NAME, FOUNDED_ON, ADDRESS_STREET, ADDRESS_CITY, ADDRESS_ZIP, RANKING, TYPE) VALUES
 ('Example University', '2000-01-01', '123 University St', 'Example City', '12345', 1, 'Public'),
 ('Sample College', '1995-05-15', '456 College Ave', 'Sample Town', '67890', 2, 'Private');
@@ -204,7 +334,9 @@ INSERT INTO Applicant (USERNAME, GENDER, DATE_OF_BIRTH, ADDRESS_STREET_NAME, ADD
 
 INSERT INTO Company (NAME, WEBSITE, INDUSTRY, FOUNDED_ON) VALUES
 ('Tech Innovations', 'https://techinnovations.com', 'Technology', '2010-04-01'),
-('Green Solutions', 'https://greensolutions.com', 'Environmental', '2015-08-15');
+('Green Solutions', 'https://greensolutions.com', 'Environmental', '2015-08-15'),
+('Tech Corp', 'www.techcorp.com', 'Technology', '2010-01-01'),
+('Innovate Inc', 'www.innovateinc.com', 'Consulting', '2015-05-05');
 
 INSERT INTO Intern_Role (ROLE_NAME, DESCRIPTION) VALUES
 ('Software Intern', 'Intern working on software development projects.'),
@@ -213,39 +345,6 @@ INSERT INTO Intern_Role (ROLE_NAME, DESCRIPTION) VALUES
 INSERT INTO Posting ( LOCATION, TERM, TYPE, DATE_POSTED, MIN_GPA, DEADLINE, PAY, COMPANY_NAME, ROLE_NAME, CREATED_BY) VALUES
 ('New York', 'Summer', 'Internship', '2023-01-01', 3.0, '2023-04-01', 20.00, 'Tech Innovations', 'Software Intern', 'admin_user'),
 ('San Francisco', 'Fall', 'Internship', '2023-02-01', 3.5, '2023-05-01', 25.00, 'Green Solutions', 'Environmental Intern', 'editor_user');
-
-
-DELIMITER $$
-
-CREATE PROCEDURE GetApplicantInfo(IN input_username VARCHAR(255))
-BEGIN
-    SELECT 
-        A.*,
-        U.* 
-    FROM 
-        Applicant A
-    JOIN 
-        AppUser  U ON A.USERNAME = U.USERNAME
-    WHERE 
-        A.USERNAME = input_username;
-END $$
-
-DELIMITER ;
-
-
-CALL GetApplicantInfo('john_doe');
--- -----------------------------
-
-
--- Inserting dummy data into CurrentUniversity
-INSERT INTO University (NAME, FOUNDED_ON, ADDRESS_STREET, ADDRESS_CITY, ADDRESS_ZIP, RANKING, TYPE) VALUES
-('University A', '2000-01-01', '123 Main St', 'City A', '12345', 1, 'Public'),
-('University B', '1995-05-15', '456 Elm St', 'City B', '67890', 2, 'Private');
-
--- Inserting dummy data into Company
-INSERT INTO Company (NAME, WEBSITE, INDUSTRY, FOUNDED_ON) VALUES
-('Tech Corp', 'www.techcorp.com', 'Technology', '2010-01-01'),
-('Innovate Inc', 'www.innovateinc.com', 'Consulting', '2015-05-05');
 
 -- Inserting dummy data into Skill
 INSERT INTO Skill (SKILL_NAME, DESCRIPTION, LEVEL, CATEGORY) VALUES
@@ -275,5 +374,14 @@ INSERT INTO Applicant_Skills (SKILL_NAME, SKILL_LEVEL, APPLICANT_ID) VALUES
 
 -- Inserting dummy data into Intern_Role
 INSERT INTO Applicant_University (USERNAME,UNIVERSITY,GPA,MAJOR,DEGREE, GRAD_DATE) VALUES
-('john_doe', 'University A',4.0,'CS','Bachelors','2026-09-30'),
-('john_doe', 'University A',4.0,'EEE','Masters','2028-09-30');
+('john_doe', 'Example University',4.0,'CS','Bachelors','2026-09-30'),
+('john_doe', 'Example University',4.0,'EEE','Masters','2028-09-30');
+
+INSERT INTO WorksIn (USERNAME, COMPANY_NAME, SALARY, MONTHS, POSITION,DESCRIPTION)
+VALUES
+    ('john_doe', 'Tech Corp', 85000.00, 24, 'Software Engineer','Developed backend systems and services in golang.'),
+    ('jane_smith', 'Innovate Inc', 65000.00, 18, 'Business Analyst',null),
+    ('alice_jones', 'Tech Corp', 75000.00, 12, 'Data Scientist','Developed ETL pipelines and focused on model building.');
+    
+    
+

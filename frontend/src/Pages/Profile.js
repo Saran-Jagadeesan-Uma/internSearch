@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Formik, Field, Form, ErrorMessage, FieldArray } from 'formik';
 import * as Yup from 'yup';
-import {jwtDecode} from 'jwt-decode'; // For decoding the token
+import { jwtDecode } from 'jwt-decode'; // For decoding the token
 import axios from 'axios'; // For API calls
 import "./Profile.css";
 
 const countries = [
-  "USA", "Canada", "United Kingdom", "Australia", "India", "Germany", 
-  "France", "Japan", "China", "Brazil", "South Africa", "Mexico", 
-  "Russia", "Italy", "Spain", "Netherlands", "Sweden", "Norway", 
+  "USA", "Canada", "United Kingdom", "Australia", "India", "Germany",
+  "France", "Japan", "China", "Brazil", "South Africa", "Mexico",
+  "Russia", "Italy", "Spain", "Netherlands", "Sweden", "Norway",
   "Finland", "Denmark", "New Zealand", "Other"
 ];
 
@@ -19,49 +19,73 @@ const Profile = () => {
     USERNAME: '',
     GENDER: '',
     DATE_OF_BIRTH: '',
-    ADDRESS_STREET_NAME:'',
-    ADDRESS_STREET_NUM:'',
-    ADDRESS_TOWN:'',
-    ADDRESS_STATE:'',
-    ADDRESS_ZIPCODE:'',
+    ADDRESS_STREET_NAME: '',
+    ADDRESS_STREET_NUM: '',
+    ADDRESS_TOWN: '',
+    ADDRESS_STATE: '',
+    ADDRESS_ZIPCODE: '',
     RACE: '',
     VETERAN_STATUS: '',
     DISABILITY_STATUS: '',
     CITIZENSHIP_STATUS: '',
-    education: [{ universityName: '', graddate: '', major:'', degree: '', gpa: '' }],
-    workExperience: [{ company: '', months: '', role: '', description: '' }],
+    education: [{ universityName: '', graddate: '', major: '', degree: '', gpa: '' }],
+    workExperience: [{ company: '', months: '', role: '', description: '', salary: '' }],
   };
-  
-  const [initialValues, setInitialValues] = useState(defaultValues);
 
+  const [initialValues, setInitialValues] = useState(defaultValues);
+  const [universities, setUniversities] = useState([]);
+  const [companies, setCompanies] = useState([]);
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Retrieve token (assuming it's stored in localStorage)
         const token = localStorage.getItem('token');
         if (!token) throw new Error('No token found');
-  
-        // Decode token to extract USERNAME
+
+        const universityResponse = await axios.get('http://localhost:4000/university');
+        setUniversities(universityResponse.data);
+
+        const companyResponse = await axios.get('http://localhost:4000/company');
+        setCompanies(companyResponse.data);
+
         const decoded = jwtDecode(token);
         const USERNAME = decoded?.username;
         if (!USERNAME) throw new Error('Invalid token');
-  
-        // Fetch user data
+
         const response = await axios.get(`http://localhost:4000/users/${USERNAME}`);
         const userData = response.data;
-  
-        // Update initial values
+
+        const educationResponse = await axios.get(`http://localhost:4000/users/education/${USERNAME}`);
+        const workResponse = await axios.get(`http://localhost:4000/users/workexp/${USERNAME}`);
+
+        const educationData = educationResponse.data.map((edu) => ({
+          universityName: edu.UNIVERSITY || '',
+          gpa: edu.GPA || '',
+          major: edu.MAJOR || '',
+          degree: edu.DEGREE || '',
+          graddate: edu.GRAD_DATE || '',
+        }));
+
+        const workexpData = workResponse.data.map((we) => ({
+          company: we.COMPANY_NAME || '',
+          months: we.MONTHS || '',
+          role: we.POSITION || '',
+          description: we.DESCRIPTION || '',
+          salary: we.SALARY || ''
+        }));
+
+        // Set initial values
         setInitialValues({
           ...defaultValues,
-          ...userData, // Populate with fetched data
+          ...userData,
+          education: educationData.length > 0 ? educationData : [{ universityName: '', graddate: '', degree: '', gpa: '' }],
+          workExperience: workexpData.length > 0 ? workexpData : [{ company: '', months: '', role: '', description: '' }]
         });
-        console.log(initialValues);
-        
+
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
     };
-  
+
     fetchData();
   }, []);
 
@@ -71,12 +95,12 @@ const Profile = () => {
     USERNAME: Yup.string().required('USERNAME is required'),
     GENDER: Yup.string().required('GENDER is required'),
     DATE_OF_BIRTH: Yup.date().required('Date of Birth is required'),
-    ADDRESS_STREET_NAME:Yup.string().required('Street name is required'),
-    ADDRESS_STREET_NUM:Yup.string().required('Street number is required'),
-    ADDRESS_TOWN:Yup.string().required('Town is required'),
-    ADDRESS_STATE:Yup.string().required('State is required'),
+    ADDRESS_STREET_NAME: Yup.string().required('Street name is required'),
+    ADDRESS_STREET_NUM: Yup.string().required('Street number is required'),
+    ADDRESS_TOWN: Yup.string().required('Town is required'),
+    ADDRESS_STATE: Yup.string().required('State is required'),
     ADDRESS_ZIPCODE: Yup.string().required('Zip code is required'),
-  
+
     RACE: Yup.string(),
     VETERAN_STATUS: Yup.boolean().required('Veteran status is required'),
     DISABILITY_STATUS: Yup.boolean().required('Disability status is required'),
@@ -96,13 +120,44 @@ const Profile = () => {
         months: Yup.number().required('Number of months is required'),
         role: Yup.string().required('Role is required'),
         description: Yup.string(),
+        salary: Yup.number()
       })
     ),
   });
 
-  const handleSubmit = (values) => {
-    console.log('Form data submitted:', values);
+  const handleSubmit = async (values) => {
+    if (values.DATE_OF_BIRTH) {
+      const dateOfBirth = new Date(values.DATE_OF_BIRTH);
+      values.DATE_OF_BIRTH = dateOfBirth.toISOString().split('T')[0]; // This gives the date in YYYY-MM-DD format
+    }
+
+    // Transform each grad date in the education array
+    if (values.education && Array.isArray(values.education)) {
+      values.education.forEach((edu) => {
+        if (edu.graddate) {
+          if (edu.graddate === '') {
+            edu.graddate = null; // If the gradDate is an empty string, set it to null
+          } else {
+            const gradDate = new Date(edu.graddate);
+            edu.graddate = gradDate.toISOString().split('T')[0]; // This gives the date in YYYY-MM-DD format
+          }
+        }
+      });
+    }
+
+    const username = values.USERNAME;
+    try {
+      const response = await axios.put(`http://localhost:4000/users/update/${username}`, values);
+      console.log('Response from API:', response.data);
+      alert('Applicant information updated successfully!');
+    } catch (error) {
+      console.error('Error updating applicant info:', error);
+      alert('Failed to update applicant information.');
+    }
+
   };
+
+
   return (
     <div className="profile-container-box">
       <Formik
@@ -131,7 +186,7 @@ const Profile = () => {
 
               <div className="profile-form-row">
                 <label htmlFor="USERNAME" className="profile-label">Username</label>
-                <Field type="text" name="USERNAME" className="profile-input" />
+                <Field type="text" name="USERNAME" className="profile-input username" readOnly />
                 <ErrorMessage name="USERNAME" component="div" className="profile-error" />
               </div>
 
@@ -153,9 +208,9 @@ const Profile = () => {
               </div>
 
               <div className="profile-form-row">
-                <label htmlFor="ADDRESS_STREET_NAME" className="profile-label">Street No.</label>
-                <Field type="text" name="ADDRESS_STREET_NAME" className="profile-input" />
-                <ErrorMessage name="ADDRESS_STREET_NAME" component="div" className="profile-error" />
+                <label htmlFor="ADDRESS_STREET_NUM" className="profile-label">Street No.</label>
+                <Field type="text" name="ADDRESS_STREET_NUM" className="profile-input" />
+                <ErrorMessage name="ADDRESS_STREET_NUM" component="div" className="profile-error" />
               </div>
 
               <div className="profile-form-row">
@@ -235,7 +290,6 @@ const Profile = () => {
               </div>
             </div>
 
-            {/* Education Section */}
             <section className="profile-education">
               <h2 className="profile-section-heading">Education</h2>
               <FieldArray name="education">
@@ -245,7 +299,14 @@ const Profile = () => {
                       <div key={index} className="profile-education-row">
                         <div className="profile-form-row">
                           <label htmlFor={`education[${index}].universityName`} className="profile-label">University Name</label>
-                          <Field type="text" name={`education[${index}].universityName`} className="profile-input" />
+                          <Field component="select" name={`education[${index}].universityName`} className="profile-input">
+                            <option value="">Select University</option>
+                            {universities.map((university, idx) => (
+                              <option key={idx} value={university.NAME}>
+                                {university.NAME}
+                              </option>
+                            ))}
+                          </Field>
                           <ErrorMessage name={`education[${index}].universityName`} component="div" className="profile-error" />
                         </div>
 
@@ -268,7 +329,7 @@ const Profile = () => {
 
                         <div className="profile-form-row">
                           <label htmlFor={`education[${index}].gpa`} className="profile-label">GPA</label>
-                          <Field type="text" name={`education[${index}].gpa`} className="profile-input" />
+                          <Field type="text" name={`education[${index}].gpa`} className="profile-input" min="0"/>
                         </div>
 
                         <button type="button" onClick={() => remove(index)} className="remove-button">
@@ -295,13 +356,24 @@ const Profile = () => {
                       <div key={index} className="profile-work-experience-row">
                         <div className="profile-form-row">
                           <label htmlFor={`workExperience[${index}].company`} className="profile-label">Company</label>
-                          <Field type="text" name={`workExperience[${index}].company`} className="profile-input" />
+
+                          <Field component="select" name={`workExperience[${index}].company`} className="profile-input">
+                            <option value="">Select Company</option>
+                            {companies.map((company, idx) => (
+                              <option key={idx} value={company.NAME}>
+                                {company.NAME}
+                              </option>
+                            ))}
+                          </Field>
+
+
+
                           <ErrorMessage name={`workExperience[${index}].company`} component="div" className="profile-error" />
                         </div>
 
                         <div className="profile-form-row">
                           <label htmlFor={`workExperience[${index}].months`} className="profile-label">Number of Months</label>
-                          <Field type="number" name={`workExperience[${index}].months`} className="profile-input" />
+                          <Field type="number" name={`workExperience[${index}].months`} className="profile-input" min="0" />
                           <ErrorMessage name={`workExperience[${index}].months`} component="div" className="profile-error" />
                         </div>
 
@@ -315,6 +387,20 @@ const Profile = () => {
                           <label htmlFor={`workExperience[${index}].description`} className="profile-label">Description</label>
                           <Field type="text" name={`workExperience[${index}].description`} className="profile-input" />
                         </div>
+
+                        <div className="profile-form-row">
+                          <label htmlFor={`workExperience[${index}].salary`} className="profile-label">
+                            Salary (hourly)
+                          </label>
+                          <Field
+                            type="number"
+                            name={`workExperience[${index}].salary`}
+                            className="profile-input"
+                            min="0"
+                            defaultValue="0" 
+                          />
+                        </div>
+
 
                         <button type="button" onClick={() => remove(index)} className="remove-button">
                           Remove Work Experience
