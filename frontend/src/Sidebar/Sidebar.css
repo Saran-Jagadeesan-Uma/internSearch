@@ -1,12 +1,52 @@
 .sidebar {
-  width: 15%;
+  width: 18%;
   position: fixed;
   height: 100%;
   border-right: 2px solid #e5e5e5;
   z-index: 3;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: left;
+  padding-left: 30px;
   margin-top: 15px;
 }
 
+.sidebar-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 20px;
+}
+
+.filter-title {
+  font-size: 18px;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.radio-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.radio-group input {
+  margin-right: 10px;
+  accent-color: #007bff; /* Customize radio button color */
+}
+
+.radio-label {
+  font-size: 16px;
+  color: #333;
+  cursor: pointer;
+}
+
+.radio-label:hover {
+  color: #007bff;
+}

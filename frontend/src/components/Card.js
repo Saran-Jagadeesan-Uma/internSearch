@@ -1,26 +1,13 @@
-import { BsFillBagFill } from "react-icons/bs";
 
-const Card = ({ img, title, star, reviews, prevPrice, newPrice }) => {
-  return (
+const Card = ({ key, company, position, deadline }) => {
+    return (
     <>
-      <section className="card">
-        <img src={img} alt={title} className="card-img" />
-        <div className="card-details">
-          <h3 className="card-title">{title}</h3>
-          <section className="card-reviews">
-            {star} {star} {star} {star}
-            <span className="total-reviews">{reviews}</span>
-          </section>
-          <section className="card-price">
-            <div className="price">
-              <del>{prevPrice}</del> {newPrice}
-            </div>
-            <div className="bag">
-              <BsFillBagFill className="bag-icon" />
-            </div>
-          </section>
+      <div className="job-card" key={key}>
+          <h2 className="company-name">{company}</h2>
+          <p className="job-position">{position}</p>
+          <p className="job-deadline">Deadline: {deadline}</p>
+          <button className="view-button">View</button>
         </div>
-      </section>
     </>
   );
 };

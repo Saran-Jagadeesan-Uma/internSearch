@@ -1,13 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from './AuthContext';
 import PrivateRoute from './PrivateRoute';
 import Navigation from "./Navigation/Nav";
 import Products from "./Products/Products";
-import products from "./db/data";
-import Recommended from "./Recommended/Recommended";
 import Sidebar from "./Sidebar/Sidebar";
-import Card from "./components/Card";
 import Profile from "./Pages/Profile";
 import ApplicationHistory from "./Pages/ApplicationHistory";
 import Login from "./components/Login"
@@ -15,66 +12,89 @@ import "./index.css";
 import Register from "./components/Register";
 
 function App() {
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [jobs, setJobs] = useState([]);
+  const [filteredJobs, setFilteredJobs] = useState([]);
+  const [filters, setFilters] = useState({
+    keywords: "",
+    role: "",
+    term: ""
+  });
 
-  // ----------- Input Filter -----------
-  const [query, setQuery] = useState("");
+  const fetchJobs = async () => {
+    try {
+      const response = await fetch("http://localhost:4000/postings/allPostings", {
+        method: "GET"
+      });
 
-  const handleInputChange = (event) => {
-    setQuery(event.target.value);
-  };
+      if (!response.ok) throw new Error("Failed to fetch jobs");
 
-  const filteredItems = products.filter(
-    (product) => product.title.toLowerCase().indexOf(query.toLowerCase()) !== -1
-  );
-
-  // ----------- Radio Filtering -----------
-  const handleChange = (event) => {
-    setSelectedCategory(event.target.value);
-  };
-
-  // ------------ Button Filtering -----------
-  const handleClick = (event) => {
-    setSelectedCategory(event.target.value);
-  };
-
-  function filteredData(products, selected, query) {
-    let filteredProducts = products;
-
-    // Filtering Input Items
-    if (query) {
-      filteredProducts = filteredItems;
+      const data = await response.json();
+      setJobs(data);
+      setFilteredJobs(data); 
+    } catch (err) {
+      console.error(err.message);
     }
+  };
 
-    // Applying selected filter
-    if (selected) {
-      filteredProducts = filteredProducts.filter(
-        ({ category, color, company, newPrice, title }) =>
-          category === selected ||
-          color === selected ||
-          company === selected ||
-          newPrice === selected ||
-          title === selected
+  const applyFilters = () => {
+    let updatedJobs = jobs;
+
+    if (filters.keywords && filters.keywords!=="") {
+      updatedJobs = updatedJobs.filter(
+        (job) => {
+          console.log(filters.keywords.toLowerCase(),job.COMPANY_NAME,job.COMPANY_NAME.toLowerCase().includes(filters.keywords.toLowerCase()) ); 
+          return job.COMPANY_NAME.toLowerCase().includes(filters.keywords.toLowerCase()) 
+        }
       );
     }
 
-    return filteredProducts.map(
-      ({ img, title, star, reviews, prevPrice, newPrice }) => (
-        <Card
-          key={Math.random()}
-          img={img}
-          title={title}
-          star={star}
-          reviews={reviews}
-          prevPrice={prevPrice}
-          newPrice={newPrice}
-        />
-      )
-    );
+    if (filters.role && filters.role!=="") {
+      updatedJobs = updatedJobs.filter((job) =>
+        job.ROLE_NAME.toLowerCase().includes(filters.role.toLowerCase())
+      );
+    }
+
+    if (filters.term && filters.term!=="") {
+      updatedJobs = updatedJobs.filter((job) =>
+        job.TERM.toLowerCase().includes(filters.term.toLowerCase())
+      );
+    }
+
+    setFilteredJobs(updatedJobs);
+  };
+
+  const handleKeywordChange = (event) => {
+    let filter_name = "keywords"
+    setFilters((prev) => ({ ...prev, [filter_name]: event.target.value }));
+  };
+
+  const onFilterChange = (event) => {
+    console.log(event);
+    
+    if (event.target.name === 'job-role') {
+      let name = "role"
+      if (event.target.value === 'All'){
+        event.target.value=""
+      }
+      setFilters((prev) => ({ ...prev, [name]: event.target.value }));
+    } else {
+       let name = "term"
+       if (event.target.value === 'All'){
+        event.target.value=""
+      }
+      setFilters((prev) => ({ ...prev, [name]: event.target.value }));
+    }
   }
 
-  const result = filteredData(products, selectedCategory, query);
+  useEffect(() => {
+    fetchJobs();
+  }, []);
 
+  useEffect(() => {
+    applyFilters();
+  }, [filters, jobs]);
+
+  
   return (
     <AuthProvider>
     <Router>
@@ -82,26 +102,24 @@ function App() {
         <Route
           path="/home"
           element={
-
             <PrivateRoute>
-            <Navigation query={query} handleInputChange={handleInputChange} />
+            <Navigation query={filters.keywords} handleInputChange={handleKeywordChange} />
             <div className="home-content">
-              <Sidebar handleChange={handleChange} />
-              <Recommended handleClick={handleClick} />
-              <Products result={result} />
-            </div>
+              <Sidebar onFilterChange={onFilterChange} />
+              <Products jobs={filteredJobs} />
+            </div> 
             </PrivateRoute>
           }
         />
         <Route path="/profile" element={
           <PrivateRoute>
-          <Navigation query={query} handleInputChange={handleInputChange} />
+          <Navigation />
           <div className="home-content"><Profile /></div>
           </PrivateRoute>
           } />
         <Route path="/applicationHistory" element={
           <PrivateRoute>
-          <Navigation query={query} handleInputChange={handleInputChange} />
+          <Navigation  />
           <div className="home-content"><ApplicationHistory /></div>
           </PrivateRoute>
           } />

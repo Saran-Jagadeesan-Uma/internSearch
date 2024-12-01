@@ -24,6 +24,8 @@ const loginUser = async(req,res)=>{
 
 const userAppInfo = async(req,res)=>{
     const { username } = req.params;
+    console.log(username);
+    
     db.query("CALL GetApplicantInfo(?)", [username], async (err, results) => {
         
         if (err) return res.status(500).json({ error: err.message });

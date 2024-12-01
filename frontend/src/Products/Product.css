@@ -1,47 +1,59 @@
-.card-container {
+.job-board {
+  margin-left: 10rem;
+  margin-top: 2rem;
   display: flex;
   flex-wrap: wrap;
-  margin-left: 20rem;
-  margin-top: 2rem;
-  z-index: -2;
+  gap: 20px;
+  justify-content: center;
+  padding: 10px;
 }
 
-.card {
-  margin: 20px;
-  border: 2px solid #ededed;
+.job-card {
+  width: 300px;
+  height: 180px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
   padding: 20px;
-  cursor: pointer;
-}
-
-.card-img {
-  width: 13rem;
-  margin-bottom: 1rem;
-}
-
-.card-title {
-  margin-bottom: 1rem;
-}
-
-.card-reviews {
-  margin-bottom: 1rem;
+  text-align: center;
   display: flex;
-}
-
-.rating-star {
-  color: #d5ab55;
-}
-
-.total-reviews {
-  font-size: 0.9rem;
-  margin-left: 10px;
-}
-
-.card-price {
-  display: flex;
+  flex-direction: column;
   justify-content: space-between;
-  align-items: center;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
-.bag-icon {
-  color: #535353;
+.job-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+.company-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+.job-position {
+  font-size: 16px;
+  color: #555;
+}
+
+.job-deadline {
+  font-size: 14px;
+  color: #999;
+}
+
+.view-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.view-button:hover {
+  background-color: #0056b3;
 }
