@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route,Navigate } from "react-router-dom";
 import { AuthProvider } from './AuthContext';
 import PrivateRoute from './PrivateRoute';
 import Navigation from "./Navigation/Nav";
-import Products from "./Products/Products";
+import Jobs from "./Jobs/Jobs";
 import Sidebar from "./Sidebar/Sidebar";
 import Profile from "./Pages/Profile";
 import ApplicationHistory from "./Pages/ApplicationHistory";
@@ -99,6 +99,7 @@ function App() {
     <AuthProvider>
     <Router>
       <Routes>
+      <Route path="/" element={<Navigate to="/home" />} />
         <Route
           path="/home"
           element={
@@ -106,7 +107,7 @@ function App() {
             <Navigation query={filters.keywords} handleInputChange={handleKeywordChange} />
             <div className="home-content">
               <Sidebar onFilterChange={onFilterChange} />
-              <Products jobs={filteredJobs} />
+              <Jobs jobs={filteredJobs} />
             </div> 
             </PrivateRoute>
           }

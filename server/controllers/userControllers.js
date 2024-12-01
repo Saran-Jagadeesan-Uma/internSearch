@@ -1,47 +1,47 @@
-const db = require('../db'); 
+const db = require('../db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const loginUser = async(req,res)=>{
+const loginUser = async (req, res) => {
     const { username, password } = req.body;
-    
+
     db.query('SELECT * FROM AppUser WHERE USERNAME = ?', [username], async (err, results) => {
-        
+
         if (err) return res.status(500).json({ error: err.message });
         if (results.length === 0) return res.status(400).json({ message: 'Invalid username or password' });
 
         const user = results[0];
-        
+
         const isMatch = await bcrypt.compare(password, user.PASSWORD);
-        
-        if (!isMatch && password!=user.PASSWORD) return res.status(400).json({ message: 'Invalid username or password' });
+
+        if (!isMatch && password != user.PASSWORD) return res.status(400).json({ message: 'Invalid username or password' });
 
         // Create JWT token
         const token = jwt.sign({ username: user.USERNAME }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        return res.json({ token,username });
+        return res.json({ token, username });
     });
 }
 
-const userAppInfo = async(req,res)=>{
+const userAppInfo = async (req, res) => {
     const { username } = req.params;
     console.log(username);
-    
+
     db.query("CALL GetApplicantInfo(?)", [username], async (err, results) => {
-        
+
         if (err) return res.status(500).json({ error: err.message });
         if (results.length === 0) return res.status(400).json({ message: 'Invalid username or password' });
-                
+
         const user = results[0][0];
-    
+
         return res.json(user);
     });
-    
+
 }
 
-const registerUser = async(req,res)=>{
+const registerUser = async (req, res) => {
     const { username, password, first_name, last_name, email } = req.body;
     try {
-        
+
         db.query('SELECT * FROM AppUser  WHERE USERNAME = ?', [username], async (err, results) => {
             if (err) return res.status(500).json({ error: err.message });
             if (results.length > 0) return res.status(400).json({ message: 'Username already exists' });
@@ -50,10 +50,14 @@ const registerUser = async(req,res)=>{
             const hashedPassword = await bcrypt.hash(password, 10);
 
             // Insert new user
-            db.query('INSERT INTO AppUser  (USERNAME, PASSWORD, FIRST_NAME, LAST_NAME, EMAIL) VALUES (?, ?, ?, ?, ?)', 
+            db.query('INSERT INTO AppUser  (USERNAME, PASSWORD, FIRST_NAME, LAST_NAME, EMAIL) VALUES (?, ?, ?, ?, ?)',
                 [username, hashedPassword, first_name, last_name, email], (err, results) => {
                     if (err) return res.status(500).json({ error: err.message });
-                    return res.status(201).json({ message: 'User  registered successfully' , username, email});
+                    return db.query('INSERT INTO Applicant  (USERNAME, GENDER, DATE_OF_BIRTH, ADDRESS_STREET_NAME, ADDRESS_STREET_NUM, ADDRESS_TOWN, ADDRESS_STATE, ADDRESS_ZIPCODE, RACE, VETERAN_STATUS, DISABILITY_STATUS, CITIZENSHIP_STATUS) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                        [username, 'Other', null, '', 0, '', '', '', null, null, null, 'USA'], (err, results) => {
+                            if (err) return res.status(500).json({ error: err.message });
+                            return res.status(201).json({ message: 'User  registered successfully', username, email });
+                        });
                 });
         });
     } catch (error) {
@@ -61,26 +65,26 @@ const registerUser = async(req,res)=>{
     }
 }
 
-const userEduAppInfo  =async(req,res)=>{
+const userEduAppInfo = async (req, res) => {
     const { username } = req.params;
     db.query("CALL GetApplicantUniversityDetails(?)", [username], async (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         if (results.length === 0) return res.status(400).json({ message: 'Invalid username or password' });
-                
+
         const user = results[0];
-    
+
         return res.json(user);
     });
 }
 
-const userWorkAppInfo  =async(req,res)=>{
+const userWorkAppInfo = async (req, res) => {
     const { username } = req.params;
     db.query("CALL GetWorksInInfoByUsername(?)", [username], async (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         if (results.length === 0) return res.status(400).json({ message: 'Invalid username or password' });
-                
+
         const user = results[0];
-    
+
         return res.json(user);
     });
 }
@@ -131,13 +135,18 @@ const updateUserAppInfo = async (req, res) => {
 
         const insertEducationPromises = education.map(async (edu) => {
             gradDate = edu.gradDate;
-            if(edu.graddate == ''){
+            if (edu.graddate == '') {
                 gradDate = null;
             }
+            gpa = edu.gpa;
+            if (gpa == ''){
+                gpa = null;
+            }
+            
             await connection.query('INSERT INTO Applicant_University (USERNAME, UNIVERSITY, GPA, DEGREE, MAJOR, GRAD_DATE) VALUES (?, ?, ?, ?, ?, ?)', [
                 username,
                 edu.universityName,
-                edu.gpa,
+                gpa,
                 edu.degree,
                 edu.major,
                 gradDate
@@ -147,14 +156,21 @@ const updateUserAppInfo = async (req, res) => {
         await connection.query('DELETE FROM WorksIn WHERE USERNAME = ?', [username]);
 
         const insertWorkExpPromises = workExperience.map(async (we) => {
-           
+            salary = we.salary;
+            if (salary == ''){
+                salary = null;
+            }
+            description = we.description;
+            if (description == ''){
+                description = null;
+            }
             await connection.query('INSERT INTO WorksIn (USERNAME, COMPANY_NAME, SALARY, MONTHS, POSITION,DESCRIPTION) VALUES (?, ?, ?, ?, ?, ?)', [
                 username,
                 we.company,
-                we.salary,
+                salary,
                 we.months,
                 we.role,
-                we.description
+                description
             ]);
         });
 

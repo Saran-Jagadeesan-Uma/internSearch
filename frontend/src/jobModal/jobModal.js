@@ -30,6 +30,11 @@ const JobModal = ({ job, isOpen, closeModal }) => {
         }),
       });
 
+      console.log({
+        jobId: jobId,
+        username: user
+      });
+
       if (response.ok) {
         alert("Successfully applied for the job!");
       } else {

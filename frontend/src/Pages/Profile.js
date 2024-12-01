@@ -78,7 +78,8 @@ const Profile = () => {
           ...defaultValues,
           ...userData,
           education: educationData.length > 0 ? educationData : [{ universityName: '', graddate: '', degree: '', gpa: '' }],
-          workExperience: workexpData.length > 0 ? workexpData : [{ company: '', months: '', role: '', description: '' }]
+          workExperience: workexpData.length > 0 ? workexpData : [{ company: '', months: '', role: '', description: '' }],
+          USERNAME
         });
 
       } catch (error) {
@@ -96,7 +97,7 @@ const Profile = () => {
     GENDER: Yup.string().required('GENDER is required'),
     DATE_OF_BIRTH: Yup.date().required('Date of Birth is required'),
     ADDRESS_STREET_NAME: Yup.string().required('Street name is required'),
-    ADDRESS_STREET_NUM: Yup.string().required('Street number is required'),
+    ADDRESS_STREET_NUM: Yup.number().required('Street number is required'),
     ADDRESS_TOWN: Yup.string().required('Town is required'),
     ADDRESS_STATE: Yup.string().required('State is required'),
     ADDRESS_ZIPCODE: Yup.string().required('Zip code is required'),
@@ -111,7 +112,7 @@ const Profile = () => {
         graddate: Yup.date(),
         major: Yup.string().required('Major is required'),
         degree: Yup.string().required('Degree is required'),
-        gpa: Yup.string(),
+        gpa: Yup.number(),
       })
     ),
     workExperience: Yup.array().of(
@@ -126,6 +127,8 @@ const Profile = () => {
   });
 
   const handleSubmit = async (values) => {
+    console.log(values);
+    
     if (values.DATE_OF_BIRTH) {
       const dateOfBirth = new Date(values.DATE_OF_BIRTH);
       values.DATE_OF_BIRTH = dateOfBirth.toISOString().split('T')[0]; // This gives the date in YYYY-MM-DD format
@@ -254,10 +257,10 @@ const Profile = () => {
                 <label className="profile-label">Veteran Status</label>
                 <div>
                   <label className="radio-label">
-                    <Field type="radio" name="VETERAN_STATUS" value="true" /> Yes
+                    <Field type="radio" name="VETERAN_STATUS" value="1" /> Yes
                   </label>
                   <label className="radio-label">
-                    <Field type="radio" name="VETERAN_STATUS" value="false" /> No
+                    <Field type="radio" name="VETERAN_STATUS" value="0" /> No
                   </label>
                 </div>
                 <ErrorMessage name="VETERAN_STATUS" component="div" className="profile-error" />
@@ -267,10 +270,10 @@ const Profile = () => {
                 <label className="profile-label">Disability Status</label>
                 <div>
                   <label className="radio-label">
-                    <Field type="radio" name="DISABILITY_STATUS" value="true" /> Yes
+                    <Field type="radio" name="DISABILITY_STATUS" value="1" /> Yes
                   </label>
                   <label className="radio-label">
-                    <Field type="radio" name="DISABILITY_STATUS" value="false" /> No
+                    <Field type="radio" name="DISABILITY_STATUS" value="0" /> No
                   </label>
                 </div>
                 <ErrorMessage name="DISABILITY_STATUS" component="div" className="profile-error" />

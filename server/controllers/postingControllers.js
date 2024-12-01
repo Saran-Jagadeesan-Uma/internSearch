@@ -22,7 +22,6 @@ const applyJob = async (req, res) => {
       .json({ message: "Job ID and username are required" });
   }
 
-  console.log(username);
 
   try {
     const applicantQuery = `SELECT APPLICANT_ID FROM applicant WHERE username = ? LIMIT 1`;

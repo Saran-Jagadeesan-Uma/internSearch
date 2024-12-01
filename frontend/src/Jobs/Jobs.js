@@ -1,8 +1,8 @@
-import "./Product.css";
-import React, { useState } from "react";
+import "./Jobs.css";
+import React, { useEffect, useState } from "react";
 import JobModal from "../jobModal/jobModal";
 
-const Products = ({ jobs }) => {
+const Jobs = ({ jobs }) => {
   const [selectedJob, setSelectedJob] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -15,6 +15,10 @@ const Products = ({ jobs }) => {
     setIsModalOpen(false);
     setSelectedJob(null);
   };
+
+  useEffect(()=>{
+    
+  });
 
   return (
     <div className="job-board">
@@ -32,4 +36,4 @@ const Products = ({ jobs }) => {
   )
 };
 
-export default Products;
+export default Jobs;

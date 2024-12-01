@@ -16,7 +16,7 @@ const Nav = ({ handleInputChange, query }) => {
     <nav>
       {/* Logo Container */}
       <div className="logo-container">
-        <Link to="/home">
+        <Link to="/">
           <h2>InternSearch</h2>
         </Link>
       </div>
@@ -30,7 +30,7 @@ const Nav = ({ handleInputChange, query }) => {
             type="text"
             onChange={handleInputChange}
             value={query}
-            placeholder="Enter your search"
+            placeholder="Search Company.."
           />
         </div>
 
