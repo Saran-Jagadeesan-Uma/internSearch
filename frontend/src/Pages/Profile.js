@@ -17,7 +17,7 @@ const Profile = () => {
     FIRST_NAME: '',
     LAST_NAME: '',
     USERNAME: '',
-    GENDER: '',
+    GENDER: 'Other',
     DATE_OF_BIRTH: '',
     ADDRESS_STREET_NAME: '',
     ADDRESS_STREET_NUM: '',
@@ -25,11 +25,11 @@ const Profile = () => {
     ADDRESS_STATE: '',
     ADDRESS_ZIPCODE: '',
     RACE: '',
-    VETERAN_STATUS: '',
-    DISABILITY_STATUS: '',
-    CITIZENSHIP_STATUS: '',
-    education: [{ universityName: '', graddate: '', major: '', degree: '', gpa: '' }],
-    workExperience: [{ company: '', months: '', role: '', description: '', salary: '' }],
+    VETERAN_STATUS: 0,
+    DISABILITY_STATUS:0,
+    CITIZENSHIP_STATUS: 'USA',
+    education: [],
+    workExperience: [],
   };
 
   const [initialValues, setInitialValues] = useState(defaultValues);
@@ -77,8 +77,8 @@ const Profile = () => {
         setInitialValues({
           ...defaultValues,
           ...userData,
-          education: educationData.length > 0 ? educationData : [{ universityName: '', graddate: '', degree: '', gpa: '' }],
-          workExperience: workexpData.length > 0 ? workexpData : [{ company: '', months: '', role: '', description: '' }],
+          education: educationData.length > 0 ? educationData : [],
+          workExperience: workexpData.length > 0 ? workexpData : [],
           USERNAME
         });
 
@@ -101,7 +101,6 @@ const Profile = () => {
     ADDRESS_TOWN: Yup.string().required('Town is required'),
     ADDRESS_STATE: Yup.string().required('State is required'),
     ADDRESS_ZIPCODE: Yup.string().required('Zip code is required'),
-
     RACE: Yup.string(),
     VETERAN_STATUS: Yup.boolean().required('Veteran status is required'),
     DISABILITY_STATUS: Yup.boolean().required('Disability status is required'),
@@ -341,7 +340,7 @@ const Profile = () => {
                       </div>
                     ))}
 
-                    <button type="button" onClick={() => push({ universityName: '', graddate: '', degree: '', gpa: '' })} className="add-button">
+                    <button type="button" onClick={() => push({ universityName: '', graddate: '', degree: '',major:'', gpa: '' })} className="add-button">
                       Add Education
                     </button>
                   </>

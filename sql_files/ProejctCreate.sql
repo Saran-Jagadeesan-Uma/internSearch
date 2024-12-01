@@ -385,6 +385,7 @@ VALUES
     ('alice_jones', 'Tech Corp', 75000.00, 12, 'Data Scientist','Developed ETL pipelines and focused on model building.');
     
 
+select * from Applicant;
 INSERT INTO AppUser  (USERNAME, PASSWORD, FIRST_NAME, LAST_NAME, EMAIL) VALUES
 ('ouewbfu', 'password123', 'John', 'Doe', 'john.dbi_boe@example.com');
 
