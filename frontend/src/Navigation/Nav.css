@@ -1,0 +1,118 @@
+nav {
+  position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid #f3f3f3;
+  padding: 20px;
+  background-color: #fff;
+  z-index: 999;
+  width: 100%;
+  
+}
+
+/* Logo Styling */
+.logo-container h2 {
+  font-size: 1.8rem;
+  color: #333;
+  text-decoration: none;
+  font-weight: bold;
+  margin: 0;
+}
+
+.logo-container a {
+  text-decoration: none;
+}
+
+/* Section Styling */
+nav>section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-left: 70px;
+}
+
+/* Navigation Container */
+.nav-container {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.search-input {
+  padding: 10px 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 100%;
+  max-width: 300px;
+  outline: none;
+}
+
+/* Profile Icons Container */
+.profile-container {
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+  margin-right: 10%;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.nav-icons {
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.nav-icons:hover {
+  color: #007bff;
+}
+
+div.nav-container .search-input{
+  margin-left: 6%;
+}
+
+
+/* Responsive Styling for Smaller Screens */
+@media (max-width: 1200px) {
+  .logo-container h2 {
+    font-size: 1.2rem; /* Reduce font size for medium screens */
+  }
+}
+
+@media (max-width: 700px) {
+  .logo-container h2 {
+    font-size: 1rem; /* Reduce font size further for small screens */
+    text-align: center; /* Center-align the logo */
+  }
+}
+
+/* Add styling for Logout Button */
+.logout-button {
+  background-color: #ff4d4d;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.logout-button:hover {
+  background-color: #ff1a1a;
+}
+
+/* Adjust responsive styling */
+@media (max-width: 700px) {
+  .profile-container {
+    flex-direction: column;
+    align-items: flex-end; /* Align logout button properly */
+  }
+  .logout-button {
+    margin-top: 10px;
+    width: 100%;
+  }
+}

@@ -1,0 +1,139 @@
+.profile-container-box {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.profile-heading {
+    font-size: 2.5rem;
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+}
+
+.profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.profile-section-heading {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+    color: #007bff;
+}
+
+.profile-form-row {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-label {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+    color: #555;
+}
+
+.profile-input,
+.profile-textarea,
+.profile-select {
+    padding: 12px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    transition: border-color 0.3s;
+}
+
+.profile-input:focus,
+.profile-textarea:focus,
+.profile-select:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.profile-textarea {
+    resize: vertical;
+    height: 120px;
+}
+
+.profile-fieldset {
+    border: none;
+    margin: 0;
+}
+
+.profile-legend {
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+}
+
+.profile-btn,
+.remove-button,
+.add-button {
+    padding: 10px 15px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.profile-btn:hover,
+.remove-button:hover,
+.add-button:hover {
+    background-color: #45a049;
+}
+.profile-submit{
+    text-align: center;
+}
+
+.profile-submit-btn {
+    padding: 15px;
+    background-color: #007bff;
+    color: white;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.profile-submit-btn:hover {
+    background-color: #0056b3;
+}
+
+.profile-error {
+    color: #ff0000;
+    font-size: 0.9rem;
+    margin-top: 5px;
+}
+
+div.profile-form-row{
+    margin-top: 20px;
+}
+
+@media (max-width: 768px) {
+    .profile-container-box {
+        padding: 15px;
+    }
+
+    .profile-input,
+    .profile-textarea {
+        font-size: 0.9rem;
+    }
+
+    .profile-submit-btn {
+        font-size: 1rem;
+    }
+}
+
+.radio-label {
+    margin-right: 10px;
+  }
+
+.add-button,.remove-button{
+    margin-top: 10px;
+}
