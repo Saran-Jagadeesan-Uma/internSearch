@@ -58,7 +58,7 @@ const applyJob = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-// In server/controllers/postingControllers.js
+
 const createPosting = async (req, res) => {
   const { 
       location, 
@@ -67,33 +67,58 @@ const createPosting = async (req, res) => {
       pay, 
       companyName, 
       roleName,
-      createdBy
+      createdBy,
+      description,
+      industry // Make sure this is included in the destructured body
   } = req.body;
 
   try {
-      const query = 'CALL CreatePosting(?, ?, ?, ?, ?, ?, ?)';
-      db.query(query, [
-          location, 
-          term, 
-          type, 
-          pay, 
-          companyName, 
-          roleName,
-          createdBy
-      ], (err, result) => {
+      let companyNameOut;
+
+      // Call the stored procedure to add company if it doesn't exist
+      const companyQuery = 'CALL AddCompanyIfNotExists(?, ?, @companyNameOut);'; // Include industry
+      db.query(companyQuery, [companyName, industry], (err) => {
           if (err) {
-              console.error('Error creating posting:', err);
-              return res.status(500).json({ error: 'Failed to create job posting' });
+              console.error('Error checking or adding company:', err);
+              return res.status(500).json({ error: 'Failed to check or add company', details: err.message });
           }
 
-          res.status(201).json({ 
-              message: 'Job posting created successfully', 
-              postId: result.insertId 
+          // Retrieve the company name output
+          db.query('SELECT @companyNameOut AS companyNameOut;', (err, result) => {
+              if (err) {
+                  console.error('Error retrieving company name:', err);
+                  return res.status(500).json({ error: 'Failed to retrieve company name', details: err.message });
+              }
+
+              companyNameOut = result[0].companyNameOut;
+
+              // Now create the posting using the company name
+              const query = 'CALL CreatePosting(?, ?, ?, ?, ?, ?, ?, ?)';
+              db.query(query, [
+                  location, 
+                  term, 
+                  type, 
+                  pay, 
+                  companyNameOut, // Use the company name directly
+                  roleName,
+                  createdBy,
+                  description // Pass the description to the stored procedure
+              ], (err, result) => {
+                  if (err) {
+                      console.error('Error creating posting:', err);
+                      return res.status(500).json({ error: 'Failed to create job posting', details: err.message });
+                  }
+
+                  res.status(201).json({ 
+                      message: 'Job posting created successfully', 
+                      postId: result.insertId 
+                  });
+              });
           });
       });
   } catch (error) {
       console.error('Unexpected error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 };
 

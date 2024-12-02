@@ -380,28 +380,30 @@ INSERT INTO AppUser  (USERNAME, PASSWORD, FIRST_NAME, LAST_NAME, EMAIL) VALUES
 INSERT INTO Applicant (USERNAME, GENDER, DATE_OF_BIRTH, ADDRESS_STREET_NAME, ADDRESS_STREET_NUM, ADDRESS_TOWN, ADDRESS_STATE, ADDRESS_ZIPCODE, RACE, VETERAN_STATUS, DISABILITY_STATUS, CITIZENSHIP_STATUS) VALUES
 ('ouewbfu', 'Other', null, '', 0, '', '', '', null, null, null, 'USA');
 
-DELIMITER //
+DELIMITER $$
 
 CREATE PROCEDURE DeletePosting(IN postId INT)
 BEGIN
     -- Delete associated applications
-    DELETE FROM applies WHERE POST_ID = postId;
+    DELETE FROM Applies WHERE POST_ID = postId;
 
     -- Now delete the posting
     DELETE FROM Posting WHERE POST_ID = postId;
-END //
+END $$
 
 DELIMITER ;
-DELIMITER //
+
+DELIMITER $$
 
 CREATE PROCEDURE EditPosting(
     IN postId INT,
     IN location VARCHAR(255),
-    IN term VARCHAR(50),
+    IN term ENUM('Fall', 'Spring', 'Summer', 'Winter'),
     IN type VARCHAR(50),
     IN pay DECIMAL(10, 2),
     IN companyName VARCHAR(255),
-    IN roleName VARCHAR(255)
+    IN roleName VARCHAR(255),
+    IN description TEXT
 )
 BEGIN
     -- Check if the company exists
@@ -412,27 +414,30 @@ BEGIN
 
     -- Update the posting
     UPDATE Posting
-    SET LOCATION = location,
+    SET 
+        LOCATION = location,
         TERM = term,
         TYPE = type,
         PAY = pay,
         ROLE_NAME = roleName,
-        COMPANY_NAME = companyName
+        COMPANY_NAME = companyName,
+        DESCRIPTION = description
     WHERE POST_ID = postId;
-END //
+END $$
 
 DELIMITER ;
 
-DELIMITER //
+DELIMITER $$
 
 CREATE PROCEDURE CreatePosting(
     IN location VARCHAR(255),
-    IN term VARCHAR(50),
+    IN term ENUM('Fall', 'Spring', 'Summer', 'Winter'),
     IN type VARCHAR(50),
     IN pay DECIMAL(10, 2),
     IN companyName VARCHAR(255),
     IN roleName VARCHAR(255),
-    IN createdBy VARCHAR(255)
+    IN createdBy VARCHAR(255),
+    IN description TEXT
 )
 BEGIN
     -- Check if the company exists
@@ -442,12 +447,40 @@ BEGIN
     END IF;
 
     -- Now insert the posting
-    INSERT INTO Posting (LOCATION, TERM, TYPE, DATE_POSTED, PAY, ROLE_NAME, CREATED_BY, COMPANY_NAME)
-    VALUES (location, term, type, NOW(), pay, roleName, createdBy, companyName);
+    INSERT INTO Posting (LOCATION, TERM, TYPE, DATE_POSTED, PAY, ROLE_NAME, CREATED_BY, COMPANY_NAME, DESCRIPTION)
+    VALUES (location, term, type, NOW(), pay, roleName, createdBy, companyName, description);
+END $$
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE PROCEDURE AddCompanyIfNotExists(
+    IN p_companyName VARCHAR(255),
+    IN p_industry VARCHAR(255), -- New parameter for industry
+    OUT p_companyNameOut VARCHAR(255)
+)
+BEGIN
+    DECLARE existingCompanyName VARCHAR(255);
+
+    -- Check if the company already exists
+    SELECT NAME INTO existingCompanyName 
+    FROM Company 
+    WHERE NAME = p_companyName;
+
+    -- If it exists, set the output parameter to the existing name
+    IF existingCompanyName IS NOT NULL THEN
+        SET p_companyNameOut = existingCompanyName;
+    ELSE
+        -- Insert the new company with the industry
+        INSERT INTO Company (NAME, INDUSTRY) VALUES (p_companyName, p_industry);
+        SET p_companyNameOut = p_companyName; -- Return the newly inserted company name
+    END IF;
 END //
 
 DELIMITER ;
 
+DELIMITER ;
 	DELIMITER $$
 
 	CREATE PROCEDURE GetCompanyNames()

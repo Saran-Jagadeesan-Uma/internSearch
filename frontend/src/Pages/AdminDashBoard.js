@@ -12,11 +12,12 @@ const AdminDashboard = () => {
         pay: '',
         companyName: '',
         roleName: '',
-        createdBy: ''
+        createdBy: '',
+        industry: '',
+        description: '' // Added description field
     });
 
     useEffect(() => {
-        // Fetch the username from the token when component mounts
         const token = localStorage.getItem('token');
         if (token) {
             const decoded = jwtDecode(token);
@@ -51,7 +52,9 @@ const AdminDashboard = () => {
                 pay: '',
                 companyName: '',
                 roleName: '',
-                createdBy: formData.createdBy // Keep the createdBy
+                createdBy: formData.createdBy,
+                industry: '',
+                description: ''
             });
             fetchPostings();
             alert('Job posting created successfully!');
@@ -129,21 +132,39 @@ const AdminDashboard = () => {
                     onChange={handleChange}
                     required
                 />
+                <textarea
+                    name="description"
+                    placeholder="Description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    required
+                />
+                <input
+                    type="text"
+                    name="industry"
+                    placeholder="Industry" 
+                    value={formData.industry}
+                    onChange={handleChange}
+                    required
+                />
                 <button type="submit">Create Job Posting</button>
             </form>
 
-            <h2 > Job Postings</h2>
-            <ul>
+            <h2>Job Postings</h2>
+            <div className="job-postings-container">
                 {postings.map(posting => (
-                    <li key={posting.POST_ID}>
+                    <div className="job-posting-card" key={posting.POST_ID}>
                         <h3>{posting.ROLE_NAME} at {posting.COMPANY_NAME}</h3>
-                        <p>Location: {posting.LOCATION}</p>
-                        <p>Term: {posting.TERM}</p>
-                        <p>Pay: ${posting.PAY}</p>
-                        <button onClick={() => handleDelete(posting.POST_ID)}>Delete Posting</button>
-                    </li>
+                        <p><strong>Location:</strong> {posting.LOCATION}</p>
+                        <p><strong>Term:</strong> {posting.TERM}</p>
+                        <p><strong>Pay:</strong> ${posting.PAY}</p>
+                        <p><strong>Description:</strong> {posting.DESCRIPTION}</p>
+                        <div className="job-posting-actions">
+                            <button onClick={() => handleDelete(posting.POST_ID)}>Delete Posting</button>
+                        </div>
+                    </div>
                 ))}
-            </ul>
+            </div>
         </div>
     );
 };
