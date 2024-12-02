@@ -1,4 +1,5 @@
 -- Creating a Database For tracking Intern Applications
+-- Creating a Database For tracking Intern Applications
 DROP DATABASE IF EXISTS Internship_Tracking_Application;
 CREATE DATABASE IF NOT EXISTS Internship_Tracking_Application;
 USE Internship_Tracking_Application;
@@ -16,6 +17,7 @@ CREATE TABLE IF NOT EXISTS AppUser (
 -- Creating a table for App Admin's Detail
 CREATE TABLE IF NOT EXISTS AppAdmin (
     USERNAME VARCHAR(255) UNIQUE,
+	PASSWORD VARCHAR(255) NOT NULL,
     ROLE VARCHAR(255) NOT NULL,
     ACCESS_LEVEL ENUM('FULL', 'EDIT', 'VIEW') NOT NULL,
     DEPARTMENT VARCHAR(255),
@@ -315,16 +317,16 @@ INSERT INTO University (NAME, FOUNDED_ON, ADDRESS_STREET, ADDRESS_CITY, ADDRESS_
 ('Sample College', '1995-05-15', '456 College Ave', 'Sample Town', '67890', 2, 'Private');
 
 
-INSERT INTO AppUser  (USERNAME, PASSWORD, FIRST_NAME, LAST_NAME, EMAIL) VALUES
+INSERT INTO AppUser (USERNAME, PASSWORD, FIRST_NAME, LAST_NAME, EMAIL) VALUES
 ('john_doe', 'password123', 'John', 'Doe', 'john.doe@example.com'),
 ('jane_smith', 'password456', 'Jane', 'Smith', 'jane.smith@example.com'),
 ('alice_jones', 'password789', 'Alice', 'Jones', 'alice.jones@example.com'),
-('admin_user', 'xxxx', 'shrey', 'shah','shreyshah@exampledomain.com'),
-('editor_user', 'dbms_project', 'vaibhav', 'thalanki','thalanki.v@northeastern.edu');
+('admin_user', 'admin123', 'shrey', 'shah','shreyshah@exampledomain.com'),
+('editor_user', 'editor123', 'vaibhav', 'thalanki','thalanki.v@northeastern.edu');
 
-INSERT INTO AppAdmin (USERNAME, ROLE, ACCESS_LEVEL, DEPARTMENT) VALUES
-('admin_user', 'Administrator', 'FULL', 'HR'),
-('editor_user', 'Editor', 'EDIT', 'Recruitment');
+INSERT INTO AppAdmin (USERNAME,PASSWORD, ROLE, ACCESS_LEVEL, DEPARTMENT) VALUES
+('admin_user','admin123', 'Administrator', 'FULL', 'HR'),
+('editor_user','editor123', 'Editor', 'EDIT', 'Recruitment');
 
 
 INSERT INTO Applicant (USERNAME, GENDER, DATE_OF_BIRTH, ADDRESS_STREET_NAME, ADDRESS_STREET_NUM, ADDRESS_TOWN, ADDRESS_STATE, ADDRESS_ZIPCODE, RACE, VETERAN_STATUS, DISABILITY_STATUS, CITIZENSHIP_STATUS) VALUES
