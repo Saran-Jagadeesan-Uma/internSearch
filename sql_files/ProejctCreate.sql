@@ -128,12 +128,6 @@ CREATE TABLE IF NOT EXISTS Applies (
 );
 
 
--- Create a table that stores specific descriptions on the internship
-CREATE TABLE IF NOT EXISTS Intern_Role (
-    ROLE_NAME VARCHAR(255) PRIMARY KEY,
-    DESCRIPTION TEXT NOT NULL
-);
-
 -- Table that stores the applicant's skill and required skills
 CREATE TABLE IF NOT EXISTS Skill (
     SKILL_NAME VARCHAR(255) NOT NULL,
@@ -151,16 +145,6 @@ CREATE TABLE IF NOT EXISTS REQUIRES(
     PRIMARY KEY(SKILL_NAME,LEVEL,POST_ID),
     FOREIGN KEY (SKILL_NAME, LEVEL) REFERENCES Skill(SKILL_NAME, LEVEL),
     FOREIGN KEY(POST_ID) REFERENCES POSTING(POST_ID)
-);
-
--- Table to denote the many-to-many relationship between InternRole and Skill
-CREATE TABLE IF NOT EXISTS Requires (
-    ROLE_NAME VARCHAR(255),
-    SKILL_NAME VARCHAR(255) NOT NULL,
-    SKILL_LEVEL VARCHAR(50) NOT NULL,
-    FOREIGN KEY (ROLE_NAME) REFERENCES Intern_Role(ROLE_NAME),
-    FOREIGN KEY (SKILL_NAME, SKILL_LEVEL) REFERENCES Skill(SKILL_NAME, LEVEL),
-    PRIMARY KEY (ROLE_NAME, SKILL_NAME, SKILL_LEVEL)
 );
 
 -- Table to denote relation between Applicant and Skill
@@ -332,10 +316,6 @@ INSERT INTO Company (NAME, WEBSITE, INDUSTRY, FOUNDED_ON) VALUES
 ('Tech Corp', 'https://techcorp.com', 'Technology', '2010-01-01'),
 ('Innovate Inc', 'https://innovateinc.com', 'Technology', '2015-06-15');
 
-INSERT INTO Intern_Role (ROLE_NAME, DESCRIPTION) VALUES
-('Software Intern', 'Intern working on software development projects.'),
-('Environmental Intern', 'Intern assisting with environmental research and projects.');
-
 INSERT INTO Posting (LOCATION, TERM, TYPE, DATE_POSTED, PAY, ROLE_NAME, CREATED_BY, COMPANY_NAME, DESCRIPTION) VALUES
 ('Remote', 'Summer', 'Internship', '2023-04-01', 20.00, 'Software Development Intern', 'admin_user', 'Tech Solutions', 'Intern will assist in developing web applications using JavaScript and React.'),
 ('New York', 'Fall', 'Internship', '2023-05-01', 25.00, 'Research Intern', 'admin_user', 'Green Energy', 'Intern will support research projects focusing on renewable energy technologies.'),
@@ -347,11 +327,6 @@ INSERT INTO Skill (SKILL_NAME, DESCRIPTION, LEVEL, CATEGORY) VALUES
 ('Python', 'Programming language', 'Intermediate', 'Programming'),
 ('Java', 'Programming language', 'Beginner', 'Programming'),
 ('SQL', 'Database language', 'Advanced', 'Database');
-
--- Inserting dummy data into Intern_Role
-INSERT INTO Intern_Role (ROLE_NAME, DESCRIPTION) VALUES
-('Software Engineer', 'Develops software applications.'),
-('Data Analyst Intern', 'Analyzes data and provides insights.');
 
 -- Inserting dummy data into Applies
 INSERT INTO Applies (APPLICANT_ID, POST_ID, APPLICATION_DATE, APPLICATION_STATUS) VALUES
@@ -493,7 +468,7 @@ CREATE PROCEDURE UpdatePosting(
     IN p_description TEXT
 )
 BEGIN
-    UPDATE postings
+    UPDATE posting
     SET 
         LOCATION = p_location,
         TERM = p_term,
