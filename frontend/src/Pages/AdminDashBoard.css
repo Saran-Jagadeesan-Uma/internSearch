@@ -1,10 +1,9 @@
 .admin-dashboard {
-    background-color: #f4f7f6;
+    background-color:  rgba(255, 255, 255, 0.5); /* Light grey background */
     min-height: 100vh;
     padding: 40px;
     font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-
 .admin-dashboard h1 {
     color: #2c3e50;
     text-align: center;
