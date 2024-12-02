@@ -5,7 +5,8 @@ const {
     applyJob, 
     createPosting, 
     getAllPostings, 
-    deletePosting 
+    deletePosting,
+    updatePosting   
 } = require("../controllers/postingControllers");
 const postingRoutes = express.Router()
 
@@ -14,5 +15,5 @@ postingRoutes.post('/applyJob', applyJob)
 postingRoutes.post('/create', createPosting)
 postingRoutes.get('/all', getAllPostings)
 postingRoutes.delete('/:postId', deletePosting)
-
+postingRoutes.put('/:postId', updatePosting)  
 module.exports = postingRoutes

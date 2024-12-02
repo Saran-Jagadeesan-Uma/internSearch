@@ -58,7 +58,6 @@ const applyJob = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
 const createPosting = async (req, res) => {
   const { 
       location, 
@@ -69,16 +68,20 @@ const createPosting = async (req, res) => {
       roleName,
       createdBy,
       description,
-      industry // Make sure this is included in the destructured body
+      industry 
   } = req.body;
 
   try {
       let companyNameOut;
 
       // Call the stored procedure to add company if it doesn't exist
-      const companyQuery = 'CALL AddCompanyIfNotExists(?, ?, @companyNameOut);'; // Include industry
+      const companyQuery = 'CALL AddCompanyIfNotExists(?, ?, @companyNameOut);';
       db.query(companyQuery, [companyName, industry], (err) => {
           if (err) {
+              // Check for the specific error message
+              if (err.code === 'ER_SIGNAL_EXCEPTION' && err.sqlMessage.includes('Existing company found with a different industry.')) {
+                  return res.status(409).json({ error: 'Existing company found with a different industry.' });
+              }
               console.error('Error checking or adding company:', err);
               return res.status(500).json({ error: 'Failed to check or add company', details: err.message });
           }
@@ -99,10 +102,10 @@ const createPosting = async (req, res) => {
                   term, 
                   type, 
                   pay, 
-                  companyNameOut, // Use the company name directly
+                  companyNameOut, 
                   roleName,
                   createdBy,
-                  description // Pass the description to the stored procedure
+                  description 
               ], (err, result) => {
                   if (err) {
                       console.error('Error creating posting:', err);
@@ -121,7 +124,6 @@ const createPosting = async (req, res) => {
       res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 };
-
 const getAllPostings = async (req, res) => {
   try {
       const query = 'SELECT * FROM Posting ORDER BY DATE_POSTED DESC';
@@ -158,8 +160,47 @@ const deletePosting = async (req, res) => {
       res.status(500).json({ error: 'Internal server error' });
   }
 };
+const updatePosting = async (req, res) => {
+  const { postId } = req.params;
+  const { 
+      location, 
+      term, 
+      type, 
+      pay, 
+      companyName, 
+      roleName,
+      description,
+      industry 
+  } = req.body;
 
+  try {
+      const query = 'CALL UpdatePosting(?, ?, ?, ?, ?, ?, ?, ?)';
+      db.query(query, [
+          postId,
+          location, 
+          term, 
+          type, 
+          pay, 
+          companyName, 
+          roleName,
+          description
+      ], (err, result) => {
+          if (err) {
+              console.error('Error updating posting:', err);
+              return res.status(500).json({ error: 'Failed to update job posting', details: err.message });
+          }
+
+          res.status(200).json({ 
+              message: 'Job posting updated successfully', 
+              postId: postId 
+          });
+      });
+  } catch (error) {
+      console.error('Unexpected error:', error);
+      res.status(500).json({ error: 'Internal server error', details: error.message });
+  }
+};
 module.exports = {allPostings, applyJob, createPosting,
   getAllPostings,
-  deletePosting
+  deletePosting,updatePosting
 };

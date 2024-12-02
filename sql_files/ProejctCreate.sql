@@ -455,31 +455,57 @@ DELIMITER ;
 
 DELIMITER //
 
-CREATE PROCEDURE AddCompanyIfNotExists(
-    IN p_companyName VARCHAR(255),
-    IN p_industry VARCHAR(255), -- New parameter for industry
-    OUT p_companyNameOut VARCHAR(255)
-)
+DELIMITER //
+
+CREATE PROCEDURE AddCompanyIfNotExists(IN companyName VARCHAR(255), IN industry VARCHAR(255), OUT companyNameOut VARCHAR(255))
 BEGIN
-    DECLARE existingCompanyName VARCHAR(255);
-
+    DECLARE existingIndustry VARCHAR(255);
+    
     -- Check if the company already exists
-    SELECT NAME INTO existingCompanyName 
-    FROM Company 
-    WHERE NAME = p_companyName;
+    SELECT INDUSTRY INTO existingIndustry FROM Company WHERE NAME = companyName LIMIT 1;
 
-    -- If it exists, set the output parameter to the existing name
-    IF existingCompanyName IS NOT NULL THEN
-        SET p_companyNameOut = existingCompanyName;
+    IF existingIndustry IS NOT NULL THEN
+        -- If the company exists, check if the industry matches
+        IF existingIndustry != industry THEN
+            -- Throw an error if the industry does not match
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Existing company found with a different industry.';
+        END IF;
     ELSE
-        -- Insert the new company with the industry
-        INSERT INTO Company (NAME, INDUSTRY) VALUES (p_companyName, p_industry);
-        SET p_companyNameOut = p_companyName; -- Return the newly inserted company name
+        -- Insert the new company if it doesn't exist
+        INSERT INTO Company (NAME, INDUSTRY) VALUES (companyName, industry);
     END IF;
+
+    -- Set the output variable
+    SET companyNameOut = companyName;
 END //
 
 DELIMITER ;
+DELIMITER //
 
+CREATE PROCEDURE UpdatePosting(
+    IN p_post_id INT,
+    IN p_location VARCHAR(255),
+    IN p_term VARCHAR(50),
+    IN p_type VARCHAR(50),
+    IN p_pay DECIMAL(10, 2),
+    IN p_company_name VARCHAR(255),
+    IN p_role_name VARCHAR(255),
+    IN p_description TEXT
+)
+BEGIN
+    UPDATE postings
+    SET 
+        LOCATION = p_location,
+        TERM = p_term,
+        TYPE = p_type,
+        PAY = p_pay,
+        COMPANY_NAME = p_company_name,
+        ROLE_NAME = p_role_name,
+        DESCRIPTION = p_description
+    WHERE POST_ID = p_post_id;
+END //
+
+DELIMITER ;
 DELIMITER ;
 	DELIMITER $$
 
