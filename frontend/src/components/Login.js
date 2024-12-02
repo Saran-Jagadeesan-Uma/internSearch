@@ -26,16 +26,20 @@ const Login = () => {
         e.preventDefault();
         try {
             const response = await axios.post('http://localhost:4000/users/login', credentials);
-            localStorage.setItem('token', response.data.token); // Save token
+            localStorage.setItem('token', response.data.token); 
             login(response.data.token); 
-            setMessage({ text: 'Login successful!', type: 'success' });
-            navigate('/home'); 
+            
+            if (response.data.isAdmin) {
+                navigate('/admin'); 
+            } else {
+                navigate('/home'); 
+            }
+            
         } catch (err) {
             setMessage({ text: err.response?.data?.message || 'Login failed. Please check your credentials.', type: 'error' });
             console.error('Login Error:', err);
         }
     };
-
     return (
         <div className="form-container">
             <h2>Login</h2>
