@@ -22,7 +22,6 @@ const applyJob = async (req, res) => {
       .json({ message: "Job ID and username are required" });
   }
 
-
   try {
     const applicantQuery = `SELECT APPLICANT_ID FROM applicant WHERE username = ? LIMIT 1`;
 
@@ -43,8 +42,6 @@ const applyJob = async (req, res) => {
       db.query(query, [jobId, applicantId], (err, result) => {
       
       if (err) {
-        console.log("Error",err);
-        
         if (err.code === 'ER_SIGNAL_EXCEPTION' && err.sqlMessage.includes('Duplicate application detected')) {
           return res.status(409).json({ message: "You have already applied for this job." });
         }

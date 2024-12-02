@@ -26,7 +26,8 @@ const Jobs = ({ jobs }) => {
         <div className="job-card" key={index}>
           <h2 className="company-name">{job.COMPANY_NAME}</h2>
           <p className="job-position">{job.ROLE_NAME}</p>
-          <p className="job-deadline">Deadline: {new Date(job.DEADLINE).toISOString().split('T')[0]}</p>
+          <p className="job-pay">Pay: {job.PAY}</p>
+          <p className="job-posted">{new Date(job.DATE_POSTED).toISOString().split('T')[0]}</p>
           <button className="view-button" onClick={() => openModal(job)}>View</button>
         </div>
       ))}
