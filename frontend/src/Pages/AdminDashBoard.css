@@ -1,4 +1,4 @@
-/* src/Pages/AdminDashboard.css */
+/* src/Pages/AdminDashBoard.css */
 .admin-dashboard {
     padding: 20px;
     background-color: #f9f9f9;
@@ -6,21 +6,60 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.admin-functions {
-    margin-top: 20px;
+.admin-form {
+    margin-bottom: 20px;
 }
 
-.admin-button {
-    margin: 10px;
+.admin-form input,
+.admin-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.admin-form button {
+    margin: 10px 0;
     padding: 10px 15px;
     background-color: #007bff;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s;
 }
 
-.admin-button:hover {
+ .admin-form button:hover {
     background-color: #0056b3;
+}
+
+.application-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.application-item {
+    background-color: #fff;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+.application-item h3 {
+    margin: 0;
+}
+
+.application-item button {
+    margin-right: 10px;
+    padding: 5px 10px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.application-item button:hover {
+    background-color:82300;
 }

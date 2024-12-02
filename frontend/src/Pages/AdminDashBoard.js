@@ -1,6 +1,6 @@
 // src/Pages/AdminDashboard.js
 import React, { useEffect, useState } from 'react';
-import './AdminDashBoard.css'; // Optional: Create a CSS file for styling
+import './AdminDashBoard.css'; // CSS for styling
 import axios from 'axios';
 
 const AdminDashboard = () => {
@@ -18,7 +18,7 @@ const AdminDashboard = () => {
 
     const fetchApplications = async () => {
         try {
-            const response = await axios.get('http://localhost:4000/applications'); // Adjust the endpoint accordingly
+            const response = await axios.get('http://localhost:4000/applications');
             setApplications(response.data);
         } catch (error) {
             console.error('Error fetching applications:', error);
@@ -41,7 +41,7 @@ const AdminDashboard = () => {
 
     const createApplication = async () => {
         try {
-            await axios.post('http://localhost:4000/applications', formData); // Adjust the endpoint accordingly
+            await axios.post('http://localhost:4000/applications', formData);
             fetchApplications();
             resetForm();
         } catch (error) {
@@ -51,7 +51,7 @@ const AdminDashboard = () => {
 
     const updateApplication = async () => {
         try {
-            await axios.put(`http://localhost:4000/applications/${formData.id}`, formData); // Adjust the endpoint accordingly
+            await axios.put(`http://localhost:4000/applications/${formData.id}`, formData);
             fetchApplications();
             resetForm();
         } catch (error) {
@@ -61,7 +61,7 @@ const AdminDashboard = () => {
 
     const deleteApplication = async (id) => {
         try {
-            await axios.delete(`http://localhost:4000/applications/${id}`); // Adjust the endpoint accordingly
+            await axios.delete(`http://localhost:4000/applications/${id}`);
             fetchApplications();
         } catch (error) {
             console.error('Error deleting application:', error);
@@ -81,7 +81,7 @@ const AdminDashboard = () => {
     return (
         <div className="admin-dashboard">
             <h1>Admin Dashboard</h1>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className="admin-form">
                 <input
                     type="text"
                     name="title"
@@ -102,9 +102,9 @@ const AdminDashboard = () => {
             </form>
 
             <h2>Existing Applications</h2>
-            <ul>
+            <ul className="application-list">
                 {applications.map((application) => (
-                    <li key={application.id}>
+                    <li key={application.id} className="application-item">
                         <h3>{application.title}</h3>
                         <p>{application.description}</p>
                         <button onClick={() => editApplication(application)}>Edit</button>
