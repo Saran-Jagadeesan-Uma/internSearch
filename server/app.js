@@ -5,12 +5,12 @@ const cors = require('cors');
 const db = require('./db'); // import the database connection
 const userRoutes = require('./routes/userRoutes');
 const postingRoutes = require('./routes/postingRoutes');
+const adminRoutes = require('./routes/adminRoutes'); // Import admin routes
 const app = express();
 const PORT = process.env.PORT || 4000;
 
 app.use(cors());
 app.use(bodyParser.json());
-
 
 app.get('/university', (req, res) => {
     db.query('SELECT * FROM University', (err, results) => {
@@ -45,9 +45,9 @@ app.get('/company', (req, res) => {
 //     });
 // });
 
-app.use('/users',userRoutes);
-app.use('/postings', postingRoutes)
-
+app.use('/users', userRoutes);
+app.use('/postings', postingRoutes);
+app.use('/admin', adminRoutes); // Use admin routes here
 
 // Start the server
 app.listen(PORT, () => {
