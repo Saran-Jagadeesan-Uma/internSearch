@@ -58,5 +58,83 @@ const applyJob = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+// In server/controllers/postingControllers.js
+const createPosting = async (req, res) => {
+  const { 
+      location, 
+      term, 
+      type, 
+      pay, 
+      companyName, 
+      roleName,
+      createdBy
+  } = req.body;
 
-module.exports = { allPostings, applyJob };
+  try {
+      const query = 'CALL CreatePosting(?, ?, ?, ?, ?, ?, ?)';
+      db.query(query, [
+          location, 
+          term, 
+          type, 
+          pay, 
+          companyName, 
+          roleName,
+          createdBy
+      ], (err, result) => {
+          if (err) {
+              console.error('Error creating posting:', err);
+              return res.status(500).json({ error: 'Failed to create job posting' });
+          }
+
+          res.status(201).json({ 
+              message: 'Job posting created successfully', 
+              postId: result.insertId 
+          });
+      });
+  } catch (error) {
+      console.error('Unexpected error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+const getAllPostings = async (req, res) => {
+  try {
+      const query = 'SELECT * FROM Posting ORDER BY DATE_POSTED DESC';
+      
+      db.query(query, (err, results) => {
+          if (err) {
+              console.error('Error fetching postings:', err);
+              return res.status(500).json({ error: 'Failed to fetch job postings' });
+          }
+
+          res.status(200).json(results);
+      });
+  } catch (error) {
+      console.error('Unexpected error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+const deletePosting = async (req, res) => {
+  const { postId } = req.params;
+
+  try {
+      const query = 'CALL DeletePosting(?)';
+      db.query(query, [postId], (err, result) => {
+          if (err) {
+              console.error('Error deleting posting:', err);
+              return res.status(500).json({ error: 'Failed to delete job posting' });
+          }
+
+          res.status(200).json({ message: 'Job posting deleted successfully' });
+      });
+  } catch (error) {
+      console.error('Unexpected error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+module.exports = {allPostings, applyJob, createPosting,
+  getAllPostings,
+  deletePosting
+};

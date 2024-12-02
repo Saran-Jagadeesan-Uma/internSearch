@@ -104,23 +104,16 @@ CREATE TABLE IF NOT EXISTS WorksIn (
 CREATE TABLE IF NOT EXISTS Posting (
     POST_ID INT PRIMARY KEY AUTO_INCREMENT,
     LOCATION VARCHAR(255) NOT NULL,
-    TERM ENUM('Fall', 'Spring', 'Summer', ' Winter') NOT NULL,
+    TERM ENUM('Fall', 'Spring', 'Summer', 'Winter') NOT NULL,
     TYPE VARCHAR(255) NOT NULL,
     DATE_POSTED DATE NOT NULL,
     PAY DECIMAL(10, 2) NOT NULL,
-    COMPANY_NAME VARCHAR(255) NOT NULL,
     ROLE_NAME VARCHAR(255) NOT NULL,
-    CREATED_BY VARCHAR(255),
-    FOREIGN KEY (CREATED_BY) REFERENCES AppAdmin(USERNAME) ON UPDATE CASCADE ON DELETE CASCADE
-);
-
--- Table to denote the many-to-many relationship between AppUser  and Posting
-CREATE TABLE IF NOT EXISTS VIEWS (
-    USERNAME VARCHAR(255),
-    POST_ID INT,
-    PRIMARY KEY (USERNAME, POST_ID),
-    FOREIGN KEY (USERNAME) REFERENCES AppUser (USERNAME) ON UPDATE CASCADE ON DELETE CASCADE,
-    FOREIGN KEY (POST_ID) REFERENCES Posting(POST_ID) ON UPDATE CASCADE ON DELETE CASCADE
+    CREATED_BY VARCHAR(255) NOT NULL ,
+    COMPANY_NAME VARCHAR(255) NOT NULL,
+	DESCRIPTION TEXT NOT NULL,
+    FOREIGN KEY (CREATED_BY) REFERENCES AppAdmin(USERNAME) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (COMPANY_NAME) REFERENCES Company(NAME) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 -- To denote the many-to-many relationship between Applicant and Posting
@@ -141,17 +134,6 @@ CREATE TABLE IF NOT EXISTS Intern_Role (
     DESCRIPTION TEXT NOT NULL
 );
 
--- Table Representing Ternary Relationship
-CREATE TABLE IF NOT EXISTS Posts (
-    POST_ID INT,
-    ROLE_NAME VARCHAR(255) NOT NULL,
-    COMPANY_NAME VARCHAR(255) NOT NULL,
-    PRIMARY KEY (POST_ID, ROLE_NAME, COMPANY_NAME),
-    FOREIGN KEY (POST_ID) REFERENCES Posting(POST_ID) ON UPDATE CASCADE ON DELETE CASCADE,
-    FOREIGN KEY (ROLE_NAME) REFERENCES Intern_Role(ROLE_NAME) ON UPDATE CASCADE ON DELETE CASCADE,
-    FOREIGN KEY (COMPANY_NAME) REFERENCES Company(NAME) ON UPDATE CASCADE ON DELETE CASCADE
-);
-
 -- Table that stores the applicant's skill and required skills
 CREATE TABLE IF NOT EXISTS Skill (
     SKILL_NAME VARCHAR(255) NOT NULL,
@@ -159,6 +141,16 @@ CREATE TABLE IF NOT EXISTS Skill (
     LEVEL VARCHAR(50) NOT NULL,
     CATEGORY VARCHAR(255) NOT NULL,
     PRIMARY KEY (SKILL_NAME, LEVEL)
+);
+
+-- Create a table that stores handles many to many relationship of Postings And Skills
+CREATE TABLE IF NOT EXISTS REQUIRES(
+	SKILL_NAME VARCHAR(255),
+    LEVEL VARCHAR(255),
+    POST_ID INT AUTO_INCREMENT,
+    PRIMARY KEY(SKILL_NAME,LEVEL,POST_ID),
+    FOREIGN KEY (SKILL_NAME, LEVEL) REFERENCES Skill(SKILL_NAME, LEVEL),
+    FOREIGN KEY(POST_ID) REFERENCES POSTING(POST_ID)
 );
 
 -- Table to denote the many-to-many relationship between InternRole and Skill
@@ -332,20 +324,23 @@ INSERT INTO Applicant (USERNAME, GENDER, DATE_OF_BIRTH, ADDRESS_STREET_NAME, ADD
 ('jane_smith', 'Female', '1999-02-20', 'Second St', 202, 'Sample Town', 'Sample State', '67890', 'Asian', false, false, 'USA'),
 ('alice_jones', 'Female', '2000-03-30', 'Third St', 303, 'Example City', 'Example State', '12345', 'Hispanic', false, false, 'USA');
 
-
 INSERT INTO Company (NAME, WEBSITE, INDUSTRY, FOUNDED_ON) VALUES
-('Tech Innovations', 'https://techinnovations.com', 'Technology', '2010-04-01'),
-('Green Solutions', 'https://greensolutions.com', 'Environmental', '2015-08-15'),
-('Tech Corp', 'www.techcorp.com', 'Technology', '2010-01-01'),
-('Innovate Inc', 'www.innovateinc.com', 'Consulting', '2015-05-05');
+('Tech Solutions', 'https://techsolutions.com', 'Technology', '2012-07-15'),
+('Green Energy', 'https://greenenergy.com', 'Renewable Energy', '2018-03-20'),
+('Tech Innovations', 'https://techinnovations.com', 'Technology', '2015-05-01'),
+('Marketing Solutions', 'https://marketingsolutions.com', 'Marketing', '2019-01-10'),	
+('Tech Corp', 'https://techcorp.com', 'Technology', '2010-01-01'),
+('Innovate Inc', 'https://innovateinc.com', 'Technology', '2015-06-15');
 
 INSERT INTO Intern_Role (ROLE_NAME, DESCRIPTION) VALUES
 ('Software Intern', 'Intern working on software development projects.'),
 ('Environmental Intern', 'Intern assisting with environmental research and projects.');
 
-INSERT INTO Posting ( LOCATION, TERM, TYPE, DATE_POSTED, PAY, COMPANY_NAME, ROLE_NAME, CREATED_BY) VALUES
-('New York', 'Summer', 'Internship', '2023-01-01', 20.00, 'Tech Innovations', 'Software Intern', 'admin_user'),
-('San Francisco', 'Fall', 'Internship', '2023-02-01', 25.00, 'Green Solutions', 'Environmental Intern', 'editor_user');
+INSERT INTO Posting (LOCATION, TERM, TYPE, DATE_POSTED, PAY, ROLE_NAME, CREATED_BY, COMPANY_NAME, DESCRIPTION) VALUES
+('Remote', 'Summer', 'Internship', '2023-04-01', 20.00, 'Software Development Intern', 'admin_user', 'Tech Solutions', 'Intern will assist in developing web applications using JavaScript and React.'),
+('New York', 'Fall', 'Internship', '2023-05-01', 25.00, 'Research Intern', 'admin_user', 'Green Energy', 'Intern will support research projects focusing on renewable energy technologies.'),
+('San Francisco', 'Spring', 'Internship', '2023-06-01', 30.00, 'Data Analyst Intern', 'admin_user', 'Tech Innovations', 'Intern will analyze data sets and assist in generating reports for stakeholders.'),
+('Chicago', 'Winter', 'Internship', '2023-07-01', 22.00, 'Marketing Intern', 'admin_user', 'Marketing Solutions', 'Intern will help in creating marketing campaigns and analyzing their effectiveness.');
 
 -- Inserting dummy data into Skill
 INSERT INTO Skill (SKILL_NAME, DESCRIPTION, LEVEL, CATEGORY) VALUES
@@ -357,11 +352,6 @@ INSERT INTO Skill (SKILL_NAME, DESCRIPTION, LEVEL, CATEGORY) VALUES
 INSERT INTO Intern_Role (ROLE_NAME, DESCRIPTION) VALUES
 ('Software Engineer', 'Develops software applications.'),
 ('Data Analyst Intern', 'Analyzes data and provides insights.');
-
--- Inserting dummy data into Requires
-INSERT INTO Requires (ROLE_NAME, SKILL_NAME, SKILL_LEVEL) VALUES
-('Software Engineer', 'Python', 'Intermediate'),
-('Data Analyst Intern', 'SQL', 'Advanced');
 
 -- Inserting dummy data into Applies
 INSERT INTO Applies (APPLICANT_ID, POST_ID, APPLICATION_DATE, APPLICATION_STATUS) VALUES
@@ -390,7 +380,79 @@ INSERT INTO AppUser  (USERNAME, PASSWORD, FIRST_NAME, LAST_NAME, EMAIL) VALUES
 INSERT INTO Applicant (USERNAME, GENDER, DATE_OF_BIRTH, ADDRESS_STREET_NAME, ADDRESS_STREET_NUM, ADDRESS_TOWN, ADDRESS_STATE, ADDRESS_ZIPCODE, RACE, VETERAN_STATUS, DISABILITY_STATUS, CITIZENSHIP_STATUS) VALUES
 ('ouewbfu', 'Other', null, '', 0, '', '', '', null, null, null, 'USA');
 
+DELIMITER //
 
+CREATE PROCEDURE DeletePosting(IN postId INT)
+BEGIN
+    -- Delete associated applications
+    DELETE FROM applies WHERE POST_ID = postId;
 
+    -- Now delete the posting
+    DELETE FROM Posting WHERE POST_ID = postId;
+END //
 
-select * from Applies;
+DELIMITER ;
+DELIMITER //
+
+CREATE PROCEDURE EditPosting(
+    IN postId INT,
+    IN location VARCHAR(255),
+    IN term VARCHAR(50),
+    IN type VARCHAR(50),
+    IN pay DECIMAL(10, 2),
+    IN companyName VARCHAR(255),
+    IN roleName VARCHAR(255)
+)
+BEGIN
+    -- Check if the company exists
+    IF NOT EXISTS (SELECT 1 FROM Company WHERE NAME = companyName) THEN
+        -- Insert the company if it doesn't exist
+        INSERT INTO Company (NAME) VALUES (companyName);
+    END IF;
+
+    -- Update the posting
+    UPDATE Posting
+    SET LOCATION = location,
+        TERM = term,
+        TYPE = type,
+        PAY = pay,
+        ROLE_NAME = roleName,
+        COMPANY_NAME = companyName
+    WHERE POST_ID = postId;
+END //
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE PROCEDURE CreatePosting(
+    IN location VARCHAR(255),
+    IN term VARCHAR(50),
+    IN type VARCHAR(50),
+    IN pay DECIMAL(10, 2),
+    IN companyName VARCHAR(255),
+    IN roleName VARCHAR(255),
+    IN createdBy VARCHAR(255)
+)
+BEGIN
+    -- Check if the company exists
+    IF NOT EXISTS (SELECT 1 FROM Company WHERE NAME = companyName) THEN
+        -- Insert the company if it doesn't exist
+        INSERT INTO Company (NAME) VALUES (companyName);
+    END IF;
+
+    -- Now insert the posting
+    INSERT INTO Posting (LOCATION, TERM, TYPE, DATE_POSTED, PAY, ROLE_NAME, CREATED_BY, COMPANY_NAME)
+    VALUES (location, term, type, NOW(), pay, roleName, createdBy, companyName);
+END //
+
+DELIMITER ;
+
+	DELIMITER $$
+
+	CREATE PROCEDURE GetCompanyNames()
+	BEGIN
+		SELECT NAME FROM Company;
+	END $$
+
+	DELIMITER ;
