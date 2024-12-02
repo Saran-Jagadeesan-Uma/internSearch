@@ -126,8 +126,7 @@ const Profile = () => {
   });
 
   const handleSubmit = async (values) => {
-    console.log(values);
-    
+       
     if (values.DATE_OF_BIRTH) {
       const dateOfBirth = new Date(values.DATE_OF_BIRTH);
       values.DATE_OF_BIRTH = dateOfBirth.toISOString().split('T')[0]; // This gives the date in YYYY-MM-DD format
@@ -150,7 +149,6 @@ const Profile = () => {
     const username = values.USERNAME;
     try {
       const response = await axios.put(`http://localhost:4000/users/update/${username}`, values);
-      console.log('Response from API:', response.data);
       alert('Applicant information updated successfully!');
     } catch (error) {
       console.error('Error updating applicant info:', error);

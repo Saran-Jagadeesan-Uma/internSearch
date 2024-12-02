@@ -28,12 +28,10 @@ const Register = () => {
         try {
             const response = await axios.post('http://localhost:4000/users/register', formData);
             setMessage({ text: 'Registration successful! Redirecting to login...', type: 'success' });
-            console.log('Registration Data:', response.data);
             
-            // Navigate to the login page after a short delay to display the message
             setTimeout(() => {
                 navigate('/login');
-            }, 1500); // Adjust delay as needed
+            }, 1500);
         } catch (err) {
             setMessage({
                 text: err.response?.data?.message || 'Registration failed. Please try again.',

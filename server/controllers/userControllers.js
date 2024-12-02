@@ -190,6 +190,76 @@ const updateUserAppInfo = async (req, res) => {
 };
 
 
+const UserAppHistoryInfo = async(req,res)=>{
+    const { username } = req.params;
+
+    try {
+        const applicantQuery = `SELECT APPLICANT_ID FROM applicant WHERE username = ? LIMIT 1`;
+    
+        db.query(applicantQuery, [username], (err, results) => {
+          if (err) {
+            console.error("Error fetching applicant info:", err);
+            return res.status(500).json({ error: "Internal server error" });
+          }
+    
+          if (!results || results.length === 0) {
+            return res.status(400).json({ message: "Invalid username" });
+          }
+    
+          const applicantId = results[0].APPLICANT_ID;
+    
+          
+          db.query('select * from Applies WHERE APPLICANT_ID = ?', [applicantId], async (err, results) => {
+            if (err) {
+                return res.status(500).json({ error: 'Database query error' });
+            }
+            res.json(results);
+        });
+
+        });
+      } catch (error) {
+        console.error("Unexpected error:", error);
+        res.status(500).json({ message: "Internal server error" });
+      }
+}
+
+const deleteUserAppInfo = async(req,res)=>{
+    const { username, postId } = req.body;
+    if (!postId || !username) {
+        return res
+          .status(400)
+          .json({ message: "Post ID and username are required" });
+      }
+    try{
+        const applicantQuery = `SELECT APPLICANT_ID FROM applicant WHERE username = ? LIMIT 1`;
+    
+    db.query(applicantQuery, [username], (err, results) => {
+        if (err) {
+          console.error("Error fetching applicant info:", err);
+          return res.status(500).json({ error: "Internal server error" });
+        }
+  
+        if (!results || results.length === 0) {
+          return res.status(400).json({ message: "Invalid username" });
+        }
+  
+        const applicantId = results[0].APPLICANT_ID;       
+  
+        
+        db.query('DELETE FROM Applies WHERE APPLICANT_ID = ? AND POST_ID = ?', [applicantId, postId], async (err, results) => {
+          if (err) {
+              return res.status(500).json({ error: 'Database query error' });
+          }
+          res.json(results);
+      });
+
+      });
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+}
+
 
 module.exports = {
     registerUser,
@@ -197,5 +267,7 @@ module.exports = {
     userAppInfo,
     userEduAppInfo,
     userWorkAppInfo,
-    updateUserAppInfo
+    updateUserAppInfo,
+    UserAppHistoryInfo,
+    deleteUserAppInfo
 }

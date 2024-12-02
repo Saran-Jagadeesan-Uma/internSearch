@@ -107,8 +107,6 @@ CREATE TABLE IF NOT EXISTS Posting (
     TERM ENUM('Fall', 'Spring', 'Summer', ' Winter') NOT NULL,
     TYPE VARCHAR(255) NOT NULL,
     DATE_POSTED DATE NOT NULL,
-    MIN_GPA FLOAT NOT NULL,
-    DEADLINE DATE NOT NULL,
     PAY DECIMAL(10, 2) NOT NULL,
     COMPANY_NAME VARCHAR(255) NOT NULL,
     ROLE_NAME VARCHAR(255) NOT NULL,
@@ -345,9 +343,9 @@ INSERT INTO Intern_Role (ROLE_NAME, DESCRIPTION) VALUES
 ('Software Intern', 'Intern working on software development projects.'),
 ('Environmental Intern', 'Intern assisting with environmental research and projects.');
 
-INSERT INTO Posting ( LOCATION, TERM, TYPE, DATE_POSTED, MIN_GPA, DEADLINE, PAY, COMPANY_NAME, ROLE_NAME, CREATED_BY) VALUES
-('New York', 'Summer', 'Internship', '2023-01-01', 3.0, '2023-04-01', 20.00, 'Tech Innovations', 'Software Intern', 'admin_user'),
-('San Francisco', 'Fall', 'Internship', '2023-02-01', 3.5, '2023-05-01', 25.00, 'Green Solutions', 'Environmental Intern', 'editor_user');
+INSERT INTO Posting ( LOCATION, TERM, TYPE, DATE_POSTED, PAY, COMPANY_NAME, ROLE_NAME, CREATED_BY) VALUES
+('New York', 'Summer', 'Internship', '2023-01-01', 20.00, 'Tech Innovations', 'Software Intern', 'admin_user'),
+('San Francisco', 'Fall', 'Internship', '2023-02-01', 25.00, 'Green Solutions', 'Environmental Intern', 'editor_user');
 
 -- Inserting dummy data into Skill
 INSERT INTO Skill (SKILL_NAME, DESCRIPTION, LEVEL, CATEGORY) VALUES
@@ -386,11 +384,13 @@ VALUES
     ('jane_smith', 'Innovate Inc', 65000.00, 18, 'Business Analyst',null),
     ('alice_jones', 'Tech Corp', 75000.00, 12, 'Data Scientist','Developed ETL pipelines and focused on model building.');
     
-
-select * from Applicant;
 INSERT INTO AppUser  (USERNAME, PASSWORD, FIRST_NAME, LAST_NAME, EMAIL) VALUES
 ('ouewbfu', 'password123', 'John', 'Doe', 'john.dbi_boe@example.com');
 
 INSERT INTO Applicant (USERNAME, GENDER, DATE_OF_BIRTH, ADDRESS_STREET_NAME, ADDRESS_STREET_NUM, ADDRESS_TOWN, ADDRESS_STATE, ADDRESS_ZIPCODE, RACE, VETERAN_STATUS, DISABILITY_STATUS, CITIZENSHIP_STATUS) VALUES
 ('ouewbfu', 'Other', null, '', 0, '', '', '', null, null, null, 'USA');
-    
+
+
+
+
+select * from Applies;

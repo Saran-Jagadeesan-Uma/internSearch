@@ -35,6 +35,7 @@ function App() {
             <PrivateRoute>
               <Navigation />
               <div className="home-content"><ApplicationHistory /></div>
+              <HomePage/>
             </PrivateRoute>
           } />
           <Route path="/admin" element={

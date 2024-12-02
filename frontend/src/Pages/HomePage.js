@@ -35,7 +35,6 @@ export default function HomePage() {
     if (filters.keywords && filters.keywords!=="") {
       updatedJobs = updatedJobs.filter(
         (job) => {
-          console.log(filters.keywords.toLowerCase(),job.COMPANY_NAME,job.COMPANY_NAME.toLowerCase().includes(filters.keywords.toLowerCase()) ); 
           return job.COMPANY_NAME.toLowerCase().includes(filters.keywords.toLowerCase()) 
         }
       );
@@ -62,7 +61,6 @@ export default function HomePage() {
   };
 
   const onFilterChange = (event) => {
-    console.log(event);
     
     if (event.target.name === 'job-role') {
       let name = "role"

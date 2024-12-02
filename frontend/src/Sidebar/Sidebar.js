@@ -44,13 +44,11 @@ const Sidebar = ({ onFilterChange }) => {
   ]
 
   const handleRoleChange = (event) => {
-    console.log(event.target);
     setSelectedRole(event.target.value);
     onFilterChange(event); 
   };
 
   const handleTermChange = (event) => {
-    console.log(event.target);
     setSelectedTerm(event.target.value);
     onFilterChange(event); 
   };

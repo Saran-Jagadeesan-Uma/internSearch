@@ -6,7 +6,6 @@ import { jwtDecode } from 'jwt-decode'; // For decoding the token
 Modal.setAppElement("#root"); 
 
 const JobModal = ({ job, isOpen, closeModal }) => {
-    console.log(job, isOpen, closeModal);
     
   if (!job) return null;
 
@@ -30,10 +29,6 @@ const JobModal = ({ job, isOpen, closeModal }) => {
         }),
       });
 
-      console.log({
-        jobId: jobId,
-        username: user
-      });
 
       if (response.ok) {
         alert("Successfully applied for the job!");
@@ -55,9 +50,7 @@ const JobModal = ({ job, isOpen, closeModal }) => {
         <p><strong>Term:</strong> {job.TERM}</p>
         <p><strong>Type:</strong> {job.TYPE}</p>
         <p><strong>Date Posted:</strong> {new Date(job.DATE_POSTED).toLocaleDateString()}</p>
-        <p><strong>Deadline:</strong> {new Date(job.DEADLINE).toLocaleDateString()}</p>
         <p><strong>Location:</strong> {job.LOCATION}</p> 
-        <p><strong>Minimum GPA:</strong> {job.MIN_GPA}</p> 
         <p><strong>Salary:</strong> {job.PAY}</p> 
         <div className="modal-actions">
           <button className="close-button" onClick={closeModal}>Close</button>
