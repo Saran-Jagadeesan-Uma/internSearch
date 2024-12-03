@@ -269,12 +269,9 @@ const getAdminData = async (req, res) => {
             return res.status(500).json({ error: 'Database error' });
         }
         
-        // Log the entire results to see what's being returned
         console.log('Raw Results:', JSON.stringify(results, null, 2));
         
-        // Check if results exist and have data
         if (results && results[0] && results[0].length > 0) {
-            // Normalize the keys to camelCase
             const adminData = results[0][0];
             const normalizedData = {
                 username: adminData.USERNAME,

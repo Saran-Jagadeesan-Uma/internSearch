@@ -99,4 +99,4 @@ const AdminProfile = () => {
     );
 };
 
-export default AdminProfile; // Make sure this line is present
+export default AdminProfile;
