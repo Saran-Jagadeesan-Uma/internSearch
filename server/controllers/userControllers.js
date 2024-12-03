@@ -24,7 +24,6 @@ const loginUser  = async (req, res) => {
 }
 const userAppInfo = async (req, res) => {
     const { username } = req.params;
-    console.log(username);
 
     db.query("CALL GetApplicantInfo(?)", [username], async (err, results) => {
 
@@ -269,7 +268,6 @@ const getAdminData = async (req, res) => {
             return res.status(500).json({ error: 'Database error' });
         }
         
-        console.log('Raw Results:', JSON.stringify(results, null, 2));
         
         if (results && results[0] && results[0].length > 0) {
             const adminData = results[0][0];
@@ -280,7 +278,6 @@ const getAdminData = async (req, res) => {
                 department: adminData.DEPARTMENT
             };
 
-            console.log('Processed Result:', normalizedData);
             res.json(normalizedData); 
         } else {
             console.warn('No admin data found for username:', username);
