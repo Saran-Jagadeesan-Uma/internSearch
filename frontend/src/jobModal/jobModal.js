@@ -52,6 +52,7 @@ const JobModal = ({ job, isOpen, closeModal }) => {
         <p><strong>Date Posted:</strong> {new Date(job.DATE_POSTED).toLocaleDateString()}</p>
         <p><strong>Location:</strong> {job.LOCATION}</p> 
         <p><strong>Salary:</strong> {job.PAY}</p> 
+        <p><strong>Description:</strong> {job.DESCRIPTION}</p> 
         <div className="modal-actions">
           <button className="close-button" onClick={closeModal}>Close</button>
           <button className="apply-button" onClick={() => applyForJob(job.POST_ID)}>Apply</button>

@@ -20,7 +20,7 @@ const Profile = () => {
     GENDER: 'Other',
     DATE_OF_BIRTH: '',
     ADDRESS_STREET_NAME: '',
-    ADDRESS_STREET_NUM: '',
+    ADDRESS_STREET_NUM: 0,
     ADDRESS_TOWN: '',
     ADDRESS_STATE: '',
     ADDRESS_ZIPCODE: '',
@@ -126,9 +126,6 @@ const Profile = () => {
   });
 
   const handleSubmit = async (values) => {
-    console.log(values);
-    
-       
     if (values.DATE_OF_BIRTH) {
       const dateOfBirth = new Date(values.DATE_OF_BIRTH);
       values.DATE_OF_BIRTH = dateOfBirth.toISOString().split('T')[0]; // This gives the date in YYYY-MM-DD format
@@ -399,7 +396,7 @@ const Profile = () => {
                             name={`workExperience[${index}].salary`}
                             className="profile-input"
                             min="0"
-                            defaultValue="0" 
+                            value="0" 
                           />
                         </div>
 
