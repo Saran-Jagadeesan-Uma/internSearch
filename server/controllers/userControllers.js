@@ -109,7 +109,7 @@ const updateUserAppInfo = async (req, res) => {
         workExperience
     } = req.body;
 
-    const connection = db.promise(); // Assuming db is the database connection object
+    const connection = db.promise(); 
 
     try {
         await connection.query('START TRANSACTION');
@@ -209,7 +209,7 @@ const UserAppHistoryInfo = async(req,res)=>{
           const applicantId = results[0].APPLICANT_ID;
     
           
-          db.query('select * from Applies WHERE APPLICANT_ID = ?', [applicantId], async (err, results) => {
+          db.query('select * from Applies join Posting USING(POST_ID) WHERE APPLICANT_ID = ?', [applicantId], async (err, results) => {
             if (err) {
                 return res.status(500).json({ error: 'Database query error' });
             }

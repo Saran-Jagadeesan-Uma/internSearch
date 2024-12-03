@@ -86,7 +86,10 @@ export default function ApplicationHistory() {
             <li key={application.POST_ID} className="history-list-item">
               <div className="history-item-details">
                 <div className="history-item-row">
-                  <strong>Job ID:</strong> {application.POST_ID}
+                  <strong>Intern:</strong> {application.ROLE_NAME}
+                </div>
+                <div className="history-item-row">
+                  <strong>Company:</strong> {application.COMPANY_NAME}
                 </div>
                 <div className="history-item-row">
                   <strong>Application Date:</strong> {formatDate(application.APPLICATION_DATE)}

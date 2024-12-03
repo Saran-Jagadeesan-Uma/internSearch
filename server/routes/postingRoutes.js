@@ -1,4 +1,3 @@
-// In server/routes/postingRoutes.js
 const express = require("express");
 const { 
     allPostings, 
