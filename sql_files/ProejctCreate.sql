@@ -1,10 +1,8 @@
 -- Creating a Database For tracking Intern Applications
--- Creating a Database For tracking Intern Applications
 DROP DATABASE IF EXISTS Internship_Tracking_Application;
 CREATE DATABASE IF NOT EXISTS Internship_Tracking_Application;
 USE Internship_Tracking_Application;
 
-DROP TABLE IF EXISTS AppUser;
 -- Creating a table for handling App user
 CREATE TABLE IF NOT EXISTS AppUser (
     USERNAME VARCHAR(255) PRIMARY KEY,
@@ -17,7 +15,6 @@ CREATE TABLE IF NOT EXISTS AppUser (
 -- Creating a table for App Admin's Detail
 CREATE TABLE IF NOT EXISTS AppAdmin (
     USERNAME VARCHAR(255) UNIQUE,
-	PASSWORD VARCHAR(255) NOT NULL,
     ROLE VARCHAR(255) NOT NULL,
     ACCESS_LEVEL ENUM('FULL', 'EDIT', 'VIEW') NOT NULL,
     DEPARTMENT VARCHAR(255),
@@ -32,7 +29,7 @@ CREATE TABLE IF NOT EXISTS University (
     ADDRESS_CITY VARCHAR(255),
     ADDRESS_ZIP VARCHAR(20),
     RANKING INT,
-    TYPE VARCHAR(50) NOT NULL
+    TYPE ENUM('Public','Private','Co-owned')
 );
 
 
@@ -122,8 +119,8 @@ CREATE TABLE IF NOT EXISTS Applies (
     POST_ID INT,
     APPLICATION_DATE DATE NOT NULL,
     APPLICATION_STATUS VARCHAR(255) NOT NULL DEFAULT 'ON PROGRESS',
-    FOREIGN KEY (APPLICANT_ID) REFERENCES Applicant(APPLICANT_ID),
-    FOREIGN KEY (POST_ID) REFERENCES Posting(POST_ID),
+    FOREIGN KEY (APPLICANT_ID) REFERENCES Applicant(APPLICANT_ID) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (POST_ID) REFERENCES Posting(POST_ID) ON UPDATE CASCADE ON DELETE CASCADE,
     PRIMARY KEY (APPLICANT_ID, POST_ID)
 );
 
@@ -132,108 +129,179 @@ CREATE TABLE IF NOT EXISTS Applies (
 CREATE TABLE IF NOT EXISTS Skill (
     SKILL_NAME VARCHAR(255) NOT NULL,
     DESCRIPTION TEXT,
-    LEVEL VARCHAR(50) NOT NULL,
     CATEGORY VARCHAR(255) NOT NULL,
-    PRIMARY KEY (SKILL_NAME, LEVEL)
+    PRIMARY KEY (SKILL_NAME)
 );
 
 -- Create a table that stores handles many to many relationship of Postings And Skills
 CREATE TABLE IF NOT EXISTS REQUIRES(
 	SKILL_NAME VARCHAR(255),
-    LEVEL VARCHAR(255),
+    LEVEL ENUM('Beginner','Advanced','Intermediate') NOT NULL,
     POST_ID INT AUTO_INCREMENT,
-    PRIMARY KEY(SKILL_NAME,LEVEL,POST_ID),
-    FOREIGN KEY (SKILL_NAME, LEVEL) REFERENCES Skill(SKILL_NAME, LEVEL),
-    FOREIGN KEY(POST_ID) REFERENCES POSTING(POST_ID)
+    PRIMARY KEY(SKILL_NAME,POST_ID),
+    FOREIGN KEY (SKILL_NAME) REFERENCES Skill(SKILL_NAME) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY(POST_ID) REFERENCES POSTING(POST_ID) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 -- Table to denote relation between Applicant and Skill
 CREATE TABLE IF NOT EXISTS Applicant_Skills (
     SKILL_NAME VARCHAR(255) NOT NULL,
-    SKILL_LEVEL VARCHAR(50) NOT NULL,
+    SKILL_LEVEL ENUM('Beginner','Advanced','Intermediate') NOT NULL,
     APPLICANT_ID INT,
-    FOREIGN KEY (APPLICANT_ID) REFERENCES Applicant(APPLICANT_ID),
-    FOREIGN KEY (SKILL_NAME, SKILL_LEVEL) REFERENCES Skill(SKILL_NAME, LEVEL)
+    FOREIGN KEY (APPLICANT_ID) REFERENCES Applicant(APPLICANT_ID) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (SKILL_NAME) REFERENCES Skill(SKILL_NAME) ON UPDATE CASCADE ON DELETE CASCADE
 );
+    
+    
+-- ------------------------------------------------------------------------------------------------------------
+-- PROCEDURES
 
--- ---------------------------------------
+-- Admin Deletes Posting
 DELIMITER $$
-CREATE PROCEDURE GetApplicantInfo(IN input_username VARCHAR(255))
+CREATE PROCEDURE DeletePosting(IN postId INT)
 BEGIN
-    SELECT 
-        A.*,
-        U.* 
-    FROM 
-        Applicant A
-    JOIN 
-        AppUser  U ON A.USERNAME = U.USERNAME
-    WHERE 
-        A.USERNAME = input_username;
-END $$
+    -- Delete associated applications
+    DELETE FROM Applies WHERE POST_ID = postId;
 
+    -- Now delete the posting
+    DELETE FROM Posting WHERE POST_ID = postId;
+END $$
 DELIMITER ;
 
--- ----------------------------------------------------------------------
-DELIMITER $$
 
-CREATE PROCEDURE GetApplicantUniversityDetails (
-    IN p_username VARCHAR(255)
+
+
+-- Admin Edits Posting
+DELIMITER $$
+CREATE PROCEDURE EditPosting(
+    IN postId INT,
+    IN location VARCHAR(255),
+    IN term ENUM('Fall', 'Spring', 'Summer', 'Winter'),
+    IN type VARCHAR(50),
+    IN pay DECIMAL(10, 2),
+    IN companyName VARCHAR(255),
+    IN roleName VARCHAR(255),
+    IN description TEXT
 )
 BEGIN
-    SELECT 
-        *
-    FROM 
-        Applicant_University
-    WHERE 
-        USERNAME = p_username;
-END $$
-
-DELIMITER ;
-
--- ---------------------------------------
-DROP PROCEDURE IF EXISTS GetWorksInInfoByUsername;
-DELIMITER $$
-
-CREATE PROCEDURE GetWorksInInfoByUsername (
-    IN input_username VARCHAR(255)
-)
-BEGIN
-    SELECT 
-        w.USERNAME,
-        w.COMPANY_NAME,
-        w.SALARY,
-        w.MONTHS,
-        w.DESCRIPTION,
-        w.POSITION,
-        c.WEBSITE,
-        c.INDUSTRY
-    FROM 
-        WorksIn w
-    INNER JOIN 
-        Company c ON w.COMPANY_NAME = c.NAME
-    WHERE 
-        w.USERNAME = input_username;
-END $$
-
-DELIMITER ;
--- -----------------------------
-DELIMITER $$
-CREATE TRIGGER Prevent_Duplicate_Applications
-BEFORE INSERT ON Applies
-FOR EACH ROW
-BEGIN
-    IF EXISTS (
-        SELECT 1 FROM Applies
-        WHERE APPLICANT_ID = NEW.APPLICANT_ID AND POST_ID = NEW.POST_ID
-    ) THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Duplicate application detected';
+    -- Check if the company exists
+    IF NOT EXISTS (SELECT 1 FROM Company WHERE NAME = companyName) THEN
+        -- Insert the company if it doesn't exist
+        INSERT INTO Company (NAME) VALUES (companyName);
     END IF;
+    -- Update the posting
+    UPDATE Posting
+    SET 
+        LOCATION = location,
+        TERM = term,
+        TYPE = type,
+        PAY = pay,
+        ROLE_NAME = roleName,
+        COMPANY_NAME = companyName,
+        DESCRIPTION = description
+    WHERE POST_ID = postId;
 END $$
 DELIMITER ;
--- ----------------------------------
-DELIMITER $$
 
+
+
+
+-- Admin creates posting with this procedure
+DELIMITER $$
+CREATE PROCEDURE CreatePosting(
+    IN location VARCHAR(255),
+    IN term ENUM('Fall', 'Spring', 'Summer', 'Winter'),
+    IN type VARCHAR(50),
+    IN pay DECIMAL(10, 2),
+    IN companyName VARCHAR(255),
+    IN roleName VARCHAR(255),
+    IN createdBy VARCHAR(255),
+    IN description TEXT
+)
+BEGIN
+    -- Check if the company exists
+    IF NOT EXISTS (SELECT 1 FROM Company WHERE NAME = companyName) THEN
+        -- Insert the company if it doesn't exist
+        INSERT INTO Company (NAME) VALUES (companyName);
+    END IF;
+
+    -- Now insert the posting
+    INSERT INTO Posting (LOCATION, TERM, TYPE, DATE_POSTED, PAY, ROLE_NAME, CREATED_BY, COMPANY_NAME, DESCRIPTION)
+    VALUES (location, term, type, NOW(), pay, roleName, createdBy, companyName, description);
+END $$
+DELIMITER ;
+
+
+
+
+
+-- Procedure to add a company if it does not exist
+DELIMITER //
+CREATE PROCEDURE AddCompanyIfNotExists(IN companyName VARCHAR(255), IN industry VARCHAR(255), OUT companyNameOut VARCHAR(255))
+BEGIN
+    DECLARE existingIndustry VARCHAR(255);
+    -- Check if the company already exists
+    SELECT INDUSTRY INTO existingIndustry FROM Company WHERE NAME = companyName LIMIT 1;
+    IF existingIndustry IS NOT NULL THEN
+        -- If the company exists, check if the industry matches
+        IF existingIndustry != industry THEN
+            -- Throw an error if the industry does not match
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Existing company found with a different industry.';
+        END IF;
+    ELSE
+        -- Insert the new company if it doesn't exist
+        INSERT INTO Company (NAME, INDUSTRY) VALUES (companyName, industry);
+    END IF;
+
+    -- Set the output variable
+    SET companyNameOut = companyName;
+END //
+DELIMITER ;
+
+
+
+
+-- Admin Updates posting using this procedure
+DELIMITER //
+CREATE PROCEDURE UpdatePosting(
+    IN p_post_id INT,
+    IN p_location VARCHAR(255),
+    IN p_term VARCHAR(50),
+    IN p_type VARCHAR(50),
+    IN p_pay DECIMAL(10, 2),
+    IN p_company_name VARCHAR(255),
+    IN p_role_name VARCHAR(255),
+    IN p_description TEXT
+)
+BEGIN
+    UPDATE posting
+    SET 
+        LOCATION = p_location,
+        TERM = p_term,
+        TYPE = p_type,
+        PAY = p_pay,
+        COMPANY_NAME = p_company_name,
+        ROLE_NAME = p_role_name,
+        DESCRIPTION = p_description
+    WHERE POST_ID = p_post_id;
+END //
+DELIMITER ;
+
+
+
+
+-- Procedure to get company names
+DELIMITER $$
+CREATE PROCEDURE GetCompanyNames()
+BEGIN
+	SELECT NAME FROM Company;
+END $$
+DELIMITER ;
+
+
+
+-- Procedure to update user profile information
+DELIMITER $$
 CREATE PROCEDURE update_user_app_info (
     IN p_username VARCHAR(255),
     IN p_first_name VARCHAR(255),
@@ -280,213 +348,212 @@ BEGIN
     -- Commit the transaction
     COMMIT;
 END$$
-
 DELIMITER ;
 
--- -------------------------------
 
+
+
+-- Procedure to get work experience of an applicant
+DELIMITER $$
+CREATE PROCEDURE GetWorksInInfoByUsername (
+    IN input_username VARCHAR(255)
+)
+BEGIN
+    SELECT 
+        w.USERNAME,
+        w.COMPANY_NAME,
+        w.SALARY,
+        w.MONTHS,
+        w.DESCRIPTION,
+        w.POSITION,
+        c.WEBSITE,
+        c.INDUSTRY
+    FROM 
+        WorksIn w
+    INNER JOIN 
+        Company c ON w.COMPANY_NAME = c.NAME
+    WHERE 
+        w.USERNAME = input_username;
+END $$
+DELIMITER ;
+
+
+
+-- Procedure to get applicant study experience 
+DELIMITER $$
+CREATE PROCEDURE GetApplicantUniversityDetails (
+    IN p_username VARCHAR(255)
+)
+BEGIN
+    SELECT 
+        *
+    FROM 
+        Applicant_University
+    WHERE 
+        USERNAME = p_username;
+END $$
+DELIMITER ;
+
+
+-- Procedure to Get Applicant Information for user profile
+DELIMITER $$
+CREATE PROCEDURE GetApplicantInfo(IN input_username VARCHAR(255))
+BEGIN
+    SELECT 
+        A.*,
+        U.* 
+    FROM 
+        Applicant A
+    JOIN 
+        AppUser  U ON A.USERNAME = U.USERNAME
+    WHERE 
+        A.USERNAME = input_username;
+END $$
+DELIMITER ;
+
+-- -------------------------------------------------------------------------------------\
+-- TRIGGER to prevent duplicate Applications
+DELIMITER $$
+CREATE TRIGGER Prevent_Duplicate_Applications
+BEFORE INSERT ON Applies
+FOR EACH ROW
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM Applies
+        WHERE APPLICANT_ID = NEW.APPLICANT_ID AND POST_ID = NEW.POST_ID
+    ) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Duplicate application detected';
+    END IF;
+END $$
+DELIMITER ;
+
+
+-- ------------------------------------------------------------------------------
+-- INSERT data into tables
 
 INSERT INTO University (NAME, FOUNDED_ON, ADDRESS_STREET, ADDRESS_CITY, ADDRESS_ZIP, RANKING, TYPE) VALUES
-('Example University', '2000-01-01', '123 University St', 'Example City', '12345', 1, 'Public'),
-('Sample College', '1995-05-15', '456 College Ave', 'Sample Town', '67890', 2, 'Private');
+('Princeton U', '1746-01-01', '1 Nassau Hall', 'Princeton', '08544', 2, 'Private'),
+('Northeastern U', '1898-05-15', '360 Huntington Av', 'Boston', '02115', 3, 'Private'),
+('Harvard University', '1636-09-08', 'Massachusetts Hall', 'Cambridge', '02138', 1, 'Private'),
+('Stanford University', '1885-11-11', '450 Serra Mall', 'Stanford', '94305', 4, 'Private'),
+('University of California, Berkeley', '1868-03-23', '200 California Hall', 'Berkeley', '94720', 5, 'Public'),
+('Massachusetts Institute of Technology', '1861-04-10', '77 Massachusetts Ave', 'Cambridge', '02139', 6, 'Private'),
+('University of Texas at Austin', '1883-09-15', '110 Inner Campus Drive', 'Austin', '78712', 7, 'Public'),
+('Yale University', '1701-10-09', 'Woodbridge Hall', 'New Haven', '06520', 8, 'Private'),
+('University of Chicago', '1890-07-01', '5801 S Ellis Ave', 'Chicago', '60637', 9, 'Private'),
+('California Institute of Technology', '1891-11-11', '1200 E California Blvd', 'Pasadena', '91125', 10, 'Private'),
+('University of Michigan', '1817-08-26', '500 S State St', 'Ann Arbor', '48109', 11, 'Public'),
+('University of Washington', '1861-11-04', '1410 NE Campus Parkway', 'Seattle', '98195', 12, 'Public');
+
 
 
 INSERT INTO AppUser (USERNAME, PASSWORD, FIRST_NAME, LAST_NAME, EMAIL) VALUES
-('john_doe', 'password123', 'John', 'Doe', 'john.doe@example.com'),
-('jane_smith', 'password456', 'Jane', 'Smith', 'jane.smith@example.com'),
-('alice_jones', 'password789', 'Alice', 'Jones', 'alice.jones@example.com'),
-('admin_user', 'admin123', 'shrey', 'shah','shreyshah@exampledomain.com'),
-('editor_user', 'editor123', 'vaibhav', 'thalanki','thalanki.v@northeastern.edu');
+('john_doe','password','John','Doe','john.doe@gmail.com'),
+('jane_smith','Hello123!','Jane','Smith','jane.smith@gmail.com'),
+('saranj', 'password123', 'saran', 'jagadeesan', 'jagadeesanuma.s@northeastern.edu'),
+('vaibhavthalanki', 'editor123', 'vaibhav', 'thalanki','thalanki.v@northeastern.edu');
 
-INSERT INTO AppAdmin (USERNAME,PASSWORD, ROLE, ACCESS_LEVEL, DEPARTMENT) VALUES
-('admin_user','admin123', 'Administrator', 'FULL', 'HR'),
-('editor_user','editor123', 'Editor', 'EDIT', 'Recruitment');
+
+INSERT INTO AppAdmin (USERNAME, ROLE, ACCESS_LEVEL, DEPARTMENT) VALUES
+('saranj', 'Administrator', 'FULL', 'Engineering'),
+('vaibhavthalanki', 'Editor', 'EDIT', 'Engineering');
 
 
 INSERT INTO Applicant (USERNAME, GENDER, DATE_OF_BIRTH, ADDRESS_STREET_NAME, ADDRESS_STREET_NUM, ADDRESS_TOWN, ADDRESS_STATE, ADDRESS_ZIPCODE, RACE, VETERAN_STATUS, DISABILITY_STATUS, CITIZENSHIP_STATUS) VALUES
-('john_doe', 'Male', '1998-06-15', 'Main St', 101, 'Example Town', 'Example State', '12345', 'White', false, false, 'USA'),
-('jane_smith', 'Female', '1999-02-20', 'Second St', 202, 'Sample Town', 'Sample State', '67890', 'Asian', false, false, 'USA'),
-('alice_jones', 'Female', '2000-03-30', 'Third St', 303, 'Example City', 'Example State', '12345', 'Hispanic', false, false, 'USA');
+('john_doe', 'Male', '1998-06-15', 'Main St', 101, 'Example Town', 'Example State', '12345', 'White', false, false, 'India'),
+('jane_smith', 'Female', '1999-02-20', 'Second St', 202, 'Sample Town', 'Sample State', '67890', 'Asian', true, false, 'USA');
+
 
 INSERT INTO Company (NAME, WEBSITE, INDUSTRY, FOUNDED_ON) VALUES
-('Tech Solutions', 'https://techsolutions.com', 'Technology', '2012-07-15'),
-('Green Energy', 'https://greenenergy.com', 'Renewable Energy', '2018-03-20'),
-('Tech Innovations', 'https://techinnovations.com', 'Technology', '2015-05-01'),
-('Marketing Solutions', 'https://marketingsolutions.com', 'Marketing', '2019-01-10'),	
-('Tech Corp', 'https://techcorp.com', 'Technology', '2010-01-01'),
-('Innovate Inc', 'https://innovateinc.com', 'Technology', '2015-06-15');
+('Google', 'https://www.google.com/', 'Technology', '1998-09-04'),
+('Facebook', 'https://www.facebook.com/', 'Technology', '2004-02-04'),
+('Amazon', 'https://www.amazon.com/', 'E-commerce', '1994-07-05'),
+('Apple', 'https://www.apple.com/', 'Technology', '1976-04-01'),
+('Netflix', 'https://www.netflix.com/', 'Entertainment', '1997-08-29'),
+('Microsoft', 'https://www.microsoft.com/', 'Technology', '1975-04-04'),
+('Tesla', 'https://www.tesla.com/', 'Automotive', '2003-07-01'),
+('IBM', 'https://www.ibm.com/', 'Technology', '1911-06-16'),
+('Intel', 'https://www.intel.com/', 'Technology', '1968-07-18'),
+('Adobe', 'https://www.adobe.com/', 'Software', '1982-12-01'),
+('Salesforce', 'https://www.salesforce.com/', 'Technology', '1999-02-03'),
+('Twitter', 'https://www.twitter.com/', 'Social Media', '2006-03-21'),
+('Snap Inc.', 'https://www.snapchat.com/', 'Social Media', '2011-09-16'),
+('Oracle', 'https://www.oracle.com/', 'Technology', '1977-06-16'),
+('Spotify', 'https://www.spotify.com/', 'Music Streaming', '2006-04-23');
 
 INSERT INTO Posting (LOCATION, TERM, TYPE, DATE_POSTED, PAY, ROLE_NAME, CREATED_BY, COMPANY_NAME, DESCRIPTION) VALUES
-('Remote', 'Summer', 'Internship', '2023-04-01', 20.00, 'Software Development Intern', 'admin_user', 'Tech Solutions', 'Intern will assist in developing web applications using JavaScript and React.'),
-('New York', 'Fall', 'Internship', '2023-05-01', 25.00, 'Research Intern', 'admin_user', 'Green Energy', 'Intern will support research projects focusing on renewable energy technologies.'),
-('San Francisco', 'Spring', 'Internship', '2023-06-01', 30.00, 'Data Analyst Intern', 'admin_user', 'Tech Innovations', 'Intern will analyze data sets and assist in generating reports for stakeholders.'),
-('Chicago', 'Winter', 'Internship', '2023-07-01', 22.00, 'Marketing Intern', 'admin_user', 'Marketing Solutions', 'Intern will help in creating marketing campaigns and analyzing their effectiveness.');
+('Remote', 'Summer', 'Internship', '2023-04-01', 20.00, 'Software Development Intern', 'saranj', 'Google', 'Intern will assist in developing web applications using JavaScript and React.'),
+('Seattle, WA', 'Fall', 'Internship', '2023-08-15', 25.00, 'Cloud Engineer Intern', 'vaibhavthalanki', 'Amazon', 'Work on scalable cloud solutions and assist in AWS infrastructure projects.'),
+('Cupertino, CA', 'Spring', 'Internship', '2024-01-20', 30.00, 'Hardware Engineering Intern', 'saranj', 'Apple', 'Support in designing and testing new hardware components for consumer devices.'),
+('Menlo Park, CA', 'Summer', 'Internship', '2023-03-12', 22.00, 'Data Analyst Intern', 'vaibhavthalanki', 'Facebook', 'Analyze large datasets to derive actionable insights for improving platform engagement.'),
+('Los Gatos, CA', 'Summer', 'Internship', '2023-04-10', 27.50, 'Machine Learning Intern', 'saranj', 'Netflix', 'Build and optimize recommendation algorithms for streaming services.'),
+('Redmond, WA', 'Winter', 'Internship', '2023-11-01', 28.00, 'Product Manager Intern', 'vaibhavthalanki', 'Microsoft', 'Collaborate with cross-functional teams to define product roadmaps and launch features.'),
+('Palo Alto, CA', 'Summer', 'Internship', '2023-05-01', 35.00, 'Autonomous Driving Intern', 'saranj', 'Tesla', 'Develop and test software for Tesla’s autonomous vehicle systems.'),
+('San Jose, CA', 'Fall', 'Internship', '2023-09-15', 26.00, 'Software Engineer Intern', 'saranj', 'Adobe', 'Contribute to the development of cutting-edge creative software solutions.'),
+('Austin, TX', 'Spring', 'Internship', '2024-02-01', 23.00, 'Marketing Analytics Intern', 'vaibhavthalanki', 'Oracle', 'Work on data-driven strategies to enhance marketing campaigns and performance.'),
+('Boston, MA', 'Summer', 'Internship', '2023-06-01', 20.00, 'Business Analyst Intern', 'vaibhavthalanki', 'Salesforce', 'Assist in business analysis, including financial modeling and market research.'),
+('New York, NY', 'Spring', 'Internship', '2024-02-10', 24.00, 'Cybersecurity Intern', 'saranj', 'IBM', 'Enhance security measures and perform vulnerability assessments on critical systems.'),
+('Remote', 'Winter', 'Internship', '2023-12-01', 21.50, 'Frontend Development Intern', 'vaibhavthalanki', 'Snap Inc.', 'Design and implement user-friendly web interfaces using modern frameworks.'),
+('San Francisco, CA', 'Summer', 'Internship', '2023-07-01', 22.50, 'Software Engineer Intern', 'vaibhavthalanki', 'Spotify', 'Build and maintain APIs and features for the Spotify music platform.');
 
--- Inserting dummy data into Skill
-INSERT INTO Skill (SKILL_NAME, DESCRIPTION, LEVEL, CATEGORY) VALUES
-('Python', 'Programming language', 'Intermediate', 'Programming'),
-('Java', 'Programming language', 'Beginner', 'Programming'),
-('SQL', 'Database language', 'Advanced', 'Database');
 
--- Inserting dummy data into Applies
+INSERT INTO Skill (SKILL_NAME, DESCRIPTION, CATEGORY) VALUES
+('Python', 'Programming language', 'Programming'),
+('Java', 'Programming language', 'Programming'),
+('SQL', 'Database language', 'Database'),
+('JavaScript', 'Programming language for web development', 'Programming'),
+('HTML', 'Markup language for structuring web content', 'Web Development'),
+('CSS', 'Stylesheet language for designing web pages', 'Web Development'),
+('React', 'JavaScript library for building user interfaces', 'Web Development'),
+('Node.js', 'JavaScript runtime environment for backend development', 'Backend Development'),
+('C++', 'Programming language for system-level and competitive programming', 'Programming'),
+('C#', 'Programming language commonly used in game development and enterprise applications', 'Programming'),
+('PHP', 'Server-side scripting language for web development', 'Web Development'),
+('Ruby', 'Programming language for web development, often used with Rails', 'Programming'),
+('Go', 'Programming language for building scalable systems', 'Programming'),
+('R', 'Programming language for statistical computing and graphics', 'Data Science'),
+('Matlab', 'Numerical computing environment and programming language', 'Engineering'),
+('AWS', 'Cloud platform offering computing and storage services', 'Cloud Computing'),
+('Docker', 'Tool for containerizing applications', 'DevOps'),
+('Kubernetes', 'Orchestration tool for managing containerized applications', 'DevOps'),
+('Linux', 'Open-source operating system', 'System Administration'),
+('Git', 'Version control system for tracking changes in code', 'Version Control'),
+('TensorFlow', 'Open-source library for machine learning', 'Machine Learning'),
+('PyTorch', 'Deep learning framework', 'Machine Learning'),
+('Tableau', 'Data visualization tool', 'Data Analytics'),
+('Power BI', 'Business analytics tool by Microsoft', 'Data Analytics');
+
+
 INSERT INTO Applies (APPLICANT_ID, POST_ID, APPLICATION_DATE, APPLICATION_STATUS) VALUES
 (1, 1, '2023-08-15', 'ON PROGRESS'),
 (2, 2, '2023-08-20', 'ON PROGRESS');
 
--- Inserting dummy data into Applicant_Skills
-INSERT INTO Applicant_Skills (SKILL_NAME, SKILL_LEVEL, APPLICANT_ID) VALUES
-('Python', 'Intermediate', 1),
-('SQL', 'Advanced', 2);
 
--- Inserting dummy data into Intern_Role
+INSERT INTO Applicant_Skills (SKILL_NAME, SKILL_LEVEL, APPLICANT_ID) VALUES
+-- Applicant 1 Skills
+('Python', 'Intermediate', 1),
+('C++', 'Advanced', 1),
+('Java', 'Intermediate', 1),
+('SQL', 'Beginner', 1),
+('JavaScript', 'Beginner', 1),
+-- Applicant 2 Skills
+('Python', 'Advanced', 2),
+('React', 'Intermediate', 2),
+('HTML', 'Advanced', 2),
+('CSS', 'Advanced', 2),
+('Node.js', 'Intermediate', 2),
+('Git', 'Beginner', 2),
+('Docker', 'Beginner', 2);
+
+
 INSERT INTO Applicant_University (USERNAME,UNIVERSITY,GPA,MAJOR,DEGREE, GRAD_DATE) VALUES
-('john_doe', 'Example University',4.0,'CS','Bachelors','2026-09-30'),
-('john_doe', 'Example University',4.0,'EEE','Masters','2028-09-30');
+('john_doe', 'Stanford University',3.9,'CS','Bachelors','2026-09-30'),
+('jane_smith', 'California Institute of Technology',4.0,'ECE','Bachelors','2024-09-30'),
+('jane_smith', 'Northeastern U',4.0,'EEE','Masters','2028-09-30');
 
 INSERT INTO WorksIn (USERNAME, COMPANY_NAME, SALARY, MONTHS, POSITION,DESCRIPTION)
 VALUES
-    ('john_doe', 'Tech Corp', 85000.00, 24, 'Software Engineer','Developed backend systems and services in golang.'),
-    ('jane_smith', 'Innovate Inc', 65000.00, 18, 'Business Analyst',null),
-    ('alice_jones', 'Tech Corp', 75000.00, 12, 'Data Scientist','Developed ETL pipelines and focused on model building.');
-    
-INSERT INTO AppUser  (USERNAME, PASSWORD, FIRST_NAME, LAST_NAME, EMAIL) VALUES
-('ouewbfu', 'password123', 'John', 'Doe', 'john.dbi_boe@example.com');
-
-INSERT INTO Applicant (USERNAME, GENDER, DATE_OF_BIRTH, ADDRESS_STREET_NAME, ADDRESS_STREET_NUM, ADDRESS_TOWN, ADDRESS_STATE, ADDRESS_ZIPCODE, RACE, VETERAN_STATUS, DISABILITY_STATUS, CITIZENSHIP_STATUS) VALUES
-('ouewbfu', 'Other', null, '', 0, '', '', '', null, null, null, 'USA');
-
-DELIMITER $$
-
-CREATE PROCEDURE DeletePosting(IN postId INT)
-BEGIN
-    -- Delete associated applications
-    DELETE FROM Applies WHERE POST_ID = postId;
-
-    -- Now delete the posting
-    DELETE FROM Posting WHERE POST_ID = postId;
-END $$
-
-DELIMITER ;
-
-DELIMITER $$
-
-CREATE PROCEDURE EditPosting(
-    IN postId INT,
-    IN location VARCHAR(255),
-    IN term ENUM('Fall', 'Spring', 'Summer', 'Winter'),
-    IN type VARCHAR(50),
-    IN pay DECIMAL(10, 2),
-    IN companyName VARCHAR(255),
-    IN roleName VARCHAR(255),
-    IN description TEXT
-)
-BEGIN
-    -- Check if the company exists
-    IF NOT EXISTS (SELECT 1 FROM Company WHERE NAME = companyName) THEN
-        -- Insert the company if it doesn't exist
-        INSERT INTO Company (NAME) VALUES (companyName);
-    END IF;
-
-    -- Update the posting
-    UPDATE Posting
-    SET 
-        LOCATION = location,
-        TERM = term,
-        TYPE = type,
-        PAY = pay,
-        ROLE_NAME = roleName,
-        COMPANY_NAME = companyName,
-        DESCRIPTION = description
-    WHERE POST_ID = postId;
-END $$
-
-DELIMITER ;
-
-DELIMITER $$
-
-CREATE PROCEDURE CreatePosting(
-    IN location VARCHAR(255),
-    IN term ENUM('Fall', 'Spring', 'Summer', 'Winter'),
-    IN type VARCHAR(50),
-    IN pay DECIMAL(10, 2),
-    IN companyName VARCHAR(255),
-    IN roleName VARCHAR(255),
-    IN createdBy VARCHAR(255),
-    IN description TEXT
-)
-BEGIN
-    -- Check if the company exists
-    IF NOT EXISTS (SELECT 1 FROM Company WHERE NAME = companyName) THEN
-        -- Insert the company if it doesn't exist
-        INSERT INTO Company (NAME) VALUES (companyName);
-    END IF;
-
-    -- Now insert the posting
-    INSERT INTO Posting (LOCATION, TERM, TYPE, DATE_POSTED, PAY, ROLE_NAME, CREATED_BY, COMPANY_NAME, DESCRIPTION)
-    VALUES (location, term, type, NOW(), pay, roleName, createdBy, companyName, description);
-END $$
-
-DELIMITER ;
-
-DELIMITER //
-
-DELIMITER //
-
-CREATE PROCEDURE AddCompanyIfNotExists(IN companyName VARCHAR(255), IN industry VARCHAR(255), OUT companyNameOut VARCHAR(255))
-BEGIN
-    DECLARE existingIndustry VARCHAR(255);
-    
-    -- Check if the company already exists
-    SELECT INDUSTRY INTO existingIndustry FROM Company WHERE NAME = companyName LIMIT 1;
-
-    IF existingIndustry IS NOT NULL THEN
-        -- If the company exists, check if the industry matches
-        IF existingIndustry != industry THEN
-            -- Throw an error if the industry does not match
-            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Existing company found with a different industry.';
-        END IF;
-    ELSE
-        -- Insert the new company if it doesn't exist
-        INSERT INTO Company (NAME, INDUSTRY) VALUES (companyName, industry);
-    END IF;
-
-    -- Set the output variable
-    SET companyNameOut = companyName;
-END //
-
-DELIMITER ;
-DELIMITER //
-
-CREATE PROCEDURE UpdatePosting(
-    IN p_post_id INT,
-    IN p_location VARCHAR(255),
-    IN p_term VARCHAR(50),
-    IN p_type VARCHAR(50),
-    IN p_pay DECIMAL(10, 2),
-    IN p_company_name VARCHAR(255),
-    IN p_role_name VARCHAR(255),
-    IN p_description TEXT
-)
-BEGIN
-    UPDATE posting
-    SET 
-        LOCATION = p_location,
-        TERM = p_term,
-        TYPE = p_type,
-        PAY = p_pay,
-        COMPANY_NAME = p_company_name,
-        ROLE_NAME = p_role_name,
-        DESCRIPTION = p_description
-    WHERE POST_ID = p_post_id;
-END //
-
-DELIMITER ;
-DELIMITER ;
-	DELIMITER $$
-
-	CREATE PROCEDURE GetCompanyNames()
-	BEGIN
-		SELECT NAME FROM Company;
-	END $$
-
-	DELIMITER ;
+    ('john_doe', 'Intel', 85000.00, 24, 'Software Engineer','Developed backend systems and services in golang.'),
+    ('jane_smith', 'Oracle', 65000.00, 18, 'Business Analyst',null),
+    ('john_doe', 'Adobe', 75000.00, 12, 'Data Scientist','Developed ETL pipelines and focused on model building.');

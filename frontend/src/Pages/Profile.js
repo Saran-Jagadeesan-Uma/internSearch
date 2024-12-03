@@ -126,6 +126,8 @@ const Profile = () => {
   });
 
   const handleSubmit = async (values) => {
+    console.log(values);
+    
        
     if (values.DATE_OF_BIRTH) {
       const dateOfBirth = new Date(values.DATE_OF_BIRTH);
