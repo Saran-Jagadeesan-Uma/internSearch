@@ -58,7 +58,8 @@ To set up the project on your local machine, follow these steps:
    cd frontend
    npm install
    npm start
-6. **The application should now be running at http://localhost:3000**
+6. **Access the Application**:
+   The application should now be running at http://localhost:3000
   
   
 ## Directory Structure
