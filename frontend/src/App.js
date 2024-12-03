@@ -9,6 +9,7 @@ import HomePage from "./Pages/HomePage";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import AdminDashboard from "./Pages/AdminDashBoard";
+import AdminProfile from "./Pages/AdminProfile"; // Import the new AdminProfile component
 import Navigation from "./Navigation/Nav";
 import "./index.css";
 
@@ -39,6 +40,12 @@ function App() {
                             <div className="home-content"><AdminDashboard /></div>
                         </PrivateRoute>
                     } />
+                    <Route path="/admin/profile" element={
+                        <PrivateRoute>
+                            <AdminNav />
+                            <div className="home-content"><AdminProfile /></div>
+                        </PrivateRoute>
+                    } /> {/* New Route for Admin Profile */}
                     <Route path="/login" element={<Login />} /> 
                     <Route path="/register" element={<Register />} />
                 </Routes>
