@@ -56,11 +56,11 @@ function App() {
 
 const ProfileWrapper = () => {
     const location = useLocation();
-    const isAdmin = location.state?.fromAdmin; // Check if the navigation is from admin
+    const isAdmin = location.state?.fromAdmin; 
 
     return (
         <PrivateRoute>
-            {isAdmin ? <AdminNav /> : <Navigation />} {/* Conditional Navigation */}
+            {isAdmin ? <AdminNav /> : <Navigation />} 
             <div className="home-content"><Profile /></div>
         </PrivateRoute>
     );
