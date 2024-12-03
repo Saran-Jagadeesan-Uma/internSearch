@@ -13,7 +13,7 @@ const AdminNav = () => {
   };
 
   const goToProfile = () => {
-    navigate("/admin/profile", { state: { fromAdmin: true } }); // Pass state indicating admin context
+    navigate("/admin/profile", { state: { fromAdmin: true } });
   };
 
   return (
