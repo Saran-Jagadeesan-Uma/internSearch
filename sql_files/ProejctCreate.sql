@@ -416,7 +416,6 @@ CREATE PROCEDURE GetAdminData(IN adminUsername VARCHAR(255))
 BEGIN
     SELECT * FROM appAdmin WHERE USERNAME = adminUsername;
 END $$
-CALL GetAdminData('saranj');
 -- -------------------------------------------------------------------------------------\
 -- TRIGGER to prevent duplicate Applications
 DELIMITER $$
