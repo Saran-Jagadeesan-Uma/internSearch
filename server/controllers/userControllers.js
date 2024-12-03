@@ -259,7 +259,6 @@ const deleteUserAppInfo = async(req,res)=>{
       res.status(500).json({ message: "Internal server error" });
     }
 }
-
 const getAdminData = async (req, res) => {
     const { username } = req.params;
     console.log('Fetching admin data for username:', username);
@@ -269,7 +268,27 @@ const getAdminData = async (req, res) => {
             console.error('Error executing stored procedure:', err);
             return res.status(500).json({ error: 'Database error' });
         }
-        res.json(results[0]); 
+        
+        // Log the entire results to see what's being returned
+        console.log('Raw Results:', JSON.stringify(results, null, 2));
+        
+        // Check if results exist and have data
+        if (results && results[0] && results[0].length > 0) {
+            // Normalize the keys to camelCase
+            const adminData = results[0][0];
+            const normalizedData = {
+                username: adminData.USERNAME,
+                role: adminData.ROLE,
+                accessLevel: adminData.ACCESS_LEVEL,
+                department: adminData.DEPARTMENT
+            };
+
+            console.log('Processed Result:', normalizedData);
+            res.json(normalizedData); 
+        } else {
+            console.warn('No admin data found for username:', username);
+            res.status(404).json({ error: 'No admin data found' });
+        }
     });
 };
 

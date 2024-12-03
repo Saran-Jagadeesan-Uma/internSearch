@@ -98,3 +98,5 @@ const AdminProfile = () => {
         </div>
     );
 };
+
+export default AdminProfile; // Make sure this line is present
