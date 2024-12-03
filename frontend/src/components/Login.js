@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '../AuthContext'; // Import the auth context
-import './FormStyles.css';
-import { Link } from "react-router-dom";
+import { useAuth } from '../AuthContext';
+import './FormStyles.css'; // Ensure your CSS file has the new styles
 
 const Login = () => {
     const [credentials, setCredentials] = useState({
@@ -12,7 +11,7 @@ const Login = () => {
     });
     const [message, setMessage] = useState({ text: '', type: '' });
     const navigate = useNavigate();
-    const { login } = useAuth(); // Access the login function from AuthContext
+    const { login } = useAuth();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -26,46 +25,52 @@ const Login = () => {
         e.preventDefault();
         try {
             const response = await axios.post('http://localhost:4000/users/login', credentials);
-            localStorage.setItem('token', response.data.token); // Save token
+            localStorage.setItem('token', response.data.token); 
             login(response.data.token); 
-            setMessage({ text: 'Login successful!', type: 'success' });
-            navigate('/home'); 
+            navigate(response.data.isAdmin ? '/admin' : '/home'); 
         } catch (err) {
             setMessage({ text: err.response?.data?.message || 'Login failed. Please check your credentials.', type: 'error' });
-            console.error('Login Error:', err);
         }
     };
 
     return (
-        <div className="form-container">
-            <h2>Login</h2>
-            <form onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    name="username"
-                    placeholder="Username"
-                    value={credentials.username}
-                    onChange={handleChange}
-                    required
-                />
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Password"
-                    value={credentials.password}
-                    onChange={handleChange}
-                    required
-                />
-                <button type="submit">Login</button>
-                {message.text && (
-                    <div className={message.type === 'error' ? 'error-message' : 'success-message'}>
-                        {message.text}
+        <div className="background">
+            <div className="form-container">
+                <h2 className="form-title">Welcome Back!</h2>
+                <form onSubmit={handleSubmit}>
+                    <div className="input-group">
+                        <input
+                            type="text"
+                            name="username"
+                            placeholder="Username"
+                            value={credentials.username}
+                            onChange={handleChange}
+                            required
+                            className="input-field"
+                        />
                     </div>
-                )}
-            </form>
-            <p className='login-link-register'>
-                New here? <Link to="/register">Sign Up</Link>
-            </p>
+                    <div className="input-group">
+                        <input
+                            type="password"
+                            name="password"
+                            placeholder="Password"
+                            value={credentials.password}
+                            onChange={handleChange}
+                            required
+                            className="input-field"
+                        />
+                    </div>
+                    <button type="submit" className="submit-button">Login</button>
+                    {message.text && (
+                        <div className={message.type === 'error' ? 'error-message' : 'success-message'}>
+                            {message.text}
+                        </div>
+                    )}
+                </form>
+                <p className='login-link-register'>
+                    New here? <Link to="/register">Sign Up</Link>
+                </p>
+            </div>
         </div>
     );
 };

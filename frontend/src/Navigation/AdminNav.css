@@ -1,0 +1,89 @@
+/* src/Navigation/AdminNav.css */
+nav {
+  position: fixed;
+  display: flex;
+  align-items: center; /* Center items vertically */
+  justify-content: space-between; /* Space items evenly */
+  border-bottom: 2px solid #f3f3f3;
+  padding: 20px;
+  background-color: #fff;
+  z-index: 999;
+  width: 100%;
+}
+
+/* Section Styling */
+nav > section {
+  display: flex;
+  justify-content: space-between; /* Ensure items are spaced evenly */
+  align-items: center; /* Center items vertically */
+  width: 100%;
+}
+
+/* Logo Styling */
+.logo-container {
+  flex: 1; /* Allow the logo container to take available space */
+}
+
+.logo-container h2 {
+  font-size: 1.8rem;
+  color: #333;
+  text-decoration: none;
+  font-weight: bold;
+  margin: 0;
+  white-space: nowrap; /* Prevent line breaks */
+  overflow: hidden; /* Hide overflow */
+  text-overflow: ellipsis; /* Add ellipsis for overflow text */
+}
+
+.logo-container a {
+  text-decoration: none;
+}
+
+/* Profile Icons Container */
+.profile-container {
+  display: flex;
+  align-items: center;
+  gap: 2rem; /* Adjust this value to control spacing */
+  margin-right: 20px; /* Reduce margin to fit better */
+}
+
+.nav-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.nav-icons {
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.nav-icons:hover {
+  color: #007bff;
+}
+
+/* Logout Button Styling */
+.logout-button {
+  background-color: #ff4d4d;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.logout-button:hover {
+  background-color: #ff1a1a;
+}
+
+/* Responsive Styling for Smaller Screens */
+@media (max-width: 700px) {
+  .profile-container {
+    flex-direction: column;
+    align-items: flex-end; /* Align logout button properly */
+  }
+  .logout-button {
+    margin-top: 10px;
+    width: 100%;
+  }
+}

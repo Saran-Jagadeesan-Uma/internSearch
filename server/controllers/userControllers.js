@@ -2,26 +2,26 @@ const db = require('../db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const loginUser = async (req, res) => {
+const loginUser  = async (req, res) => {
     const { username, password } = req.body;
 
-    db.query('SELECT * FROM AppUser WHERE USERNAME = ?', [username], async (err, results) => {
-
+    db.query('SELECT * FROM AppUser  WHERE USERNAME = ?', [username], async (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         if (results.length === 0) return res.status(400).json({ message: 'Invalid username or password' });
 
         const user = results[0];
 
         const isMatch = await bcrypt.compare(password, user.PASSWORD);
-
         if (!isMatch && password != user.PASSWORD) return res.status(400).json({ message: 'Invalid username or password' });
 
-        // Create JWT token
-        const token = jwt.sign({ username: user.USERNAME }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        return res.json({ token, username });
+        db.query('SELECT * FROM appAdmin WHERE USERNAME = ?', [username], (err, adminResults) => {
+            if (err) return res.status(500).json({ error: err.message });
+
+            const token = jwt.sign({ username: user.USERNAME, isAdmin: adminResults.length > 0 }, process.env.JWT_SECRET, { expiresIn: '1h' });
+            return res.json({ token, username, isAdmin: adminResults.length > 0 });
+        });
     });
 }
-
 const userAppInfo = async (req, res) => {
     const { username } = req.params;
     console.log(username);

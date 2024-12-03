@@ -1,0 +1,191 @@
+.admin-dashboard {
+    background-color:  rgba(255, 255, 255, 0.5); /* Light grey background */
+    min-height: 100vh;
+    padding: 40px;
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.admin-dashboard h1 {
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 30px;
+    font-weight: 600;
+    font-size: 2.5rem;
+    position: relative;
+}
+
+.admin-dashboard h1::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(to right, #3494e6, #2c3e50);
+    border-radius: 2px;
+}
+
+.dashboard-container {
+    display: flex;
+    gap: 40px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    padding: 40px;
+    transition: all 0.3s ease;
+}
+
+.dashboard-container:hover {
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+
+.form-container {
+    flex: 1;
+    background-color: #f9fafb;
+    border-radius: 10px;
+    padding: 30px;
+    border: 1px solid #e9ecef;
+    margin-top: 10px; /* Added this line to push the container up */
+}
+
+.form-container h2 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 500;
+    top: -10px; /* Optional: fine-tune positioning */
+}
+
+.admin-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.admin-form input,
+.admin-form select,
+.admin-form textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.admin-form input:focus,
+.admin-form select:focus,
+.admin-form textarea:focus {
+    border-color: #3494e6;
+    box-shadow: 0 0 0 3px rgba(52, 148, 230, 0.1);
+    outline: none;
+}
+
+.admin-form textarea {
+    grid-column: span 2;
+    resize: vertical;
+    min-height: 120px;
+}
+
+.admin-form button {
+    grid-column: span 2;
+    padding: 12px;
+    background: linear-gradient(to right, #3494e6, #2c3e50);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.admin-form button:hover {
+    background: linear-gradient(to right, #2c3e50, #3494e6);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.job-postings-container {
+    flex: 1;
+    background-color: #f9fafb;
+    border-radius: 10px;
+    padding: 30px;
+    border: 1px solid #e9ecef;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.job-postings-container h2 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.job-posting-card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+
+.job-posting-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.job-posting-card h3 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.job-posting-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+.job-posting-actions button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.job-posting-actions button:first-child {
+    background-color: #3494e6;
+    color: white;
+}
+
+.job-posting-actions button:last-child {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.job-posting-actions button:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+/* Scrollbar Styling */
+.job-postings-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.job-postings-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.job-postings-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.job-postings-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}

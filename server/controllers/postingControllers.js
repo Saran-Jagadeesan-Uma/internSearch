@@ -58,5 +58,149 @@ const applyJob = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+const createPosting = async (req, res) => {
+  const { 
+      location, 
+      term, 
+      type, 
+      pay, 
+      companyName, 
+      roleName,
+      createdBy,
+      description,
+      industry 
+  } = req.body;
 
-module.exports = { allPostings, applyJob };
+  try {
+      let companyNameOut;
+
+      // Call the stored procedure to add company if it doesn't exist
+      const companyQuery = 'CALL AddCompanyIfNotExists(?, ?, @companyNameOut);';
+      db.query(companyQuery, [companyName, industry], (err) => {
+          if (err) {
+              // Check for the specific error message
+              if (err.code === 'ER_SIGNAL_EXCEPTION' && err.sqlMessage.includes('Existing company found with a different industry.')) {
+                  return res.status(409).json({ error: 'Existing company found with a different industry.' });
+              }
+              console.error('Error checking or adding company:', err);
+              return res.status(500).json({ error: 'Failed to check or add company', details: err.message });
+          }
+
+          // Retrieve the company name output
+          db.query('SELECT @companyNameOut AS companyNameOut;', (err, result) => {
+              if (err) {
+                  console.error('Error retrieving company name:', err);
+                  return res.status(500).json({ error: 'Failed to retrieve company name', details: err.message });
+              }
+
+              companyNameOut = result[0].companyNameOut;
+
+              // Now create the posting using the company name
+              const query = 'CALL CreatePosting(?, ?, ?, ?, ?, ?, ?, ?)';
+              db.query(query, [
+                  location, 
+                  term, 
+                  type, 
+                  pay, 
+                  companyNameOut, 
+                  roleName,
+                  createdBy,
+                  description 
+              ], (err, result) => {
+                  if (err) {
+                      console.error('Error creating posting:', err);
+                      return res.status(500).json({ error: 'Failed to create job posting', details: err.message });
+                  }
+
+                  res.status(201).json({ 
+                      message: 'Job posting created successfully', 
+                      postId: result.insertId 
+                  });
+              });
+          });
+      });
+  } catch (error) {
+      console.error('Unexpected error:', error);
+      res.status(500).json({ error: 'Internal server error', details: error.message });
+  }
+};
+const getAllPostings = async (req, res) => {
+  try {
+      const query = 'SELECT * FROM Posting ORDER BY DATE_POSTED DESC';
+      
+      db.query(query, (err, results) => {
+          if (err) {
+              console.error('Error fetching postings:', err);
+              return res.status(500).json({ error: 'Failed to fetch job postings' });
+          }
+
+          res.status(200).json(results);
+      });
+  } catch (error) {
+      console.error('Unexpected error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+const deletePosting = async (req, res) => {
+  const { postId } = req.params;
+
+  try {
+      const query = 'CALL DeletePosting(?)';
+      db.query(query, [postId], (err, result) => {
+          if (err) {
+              console.error('Error deleting posting:', err);
+              return res.status(500).json({ error: 'Failed to delete job posting' });
+          }
+
+          res.status(200).json({ message: 'Job posting deleted successfully' });
+      });
+  } catch (error) {
+      console.error('Unexpected error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+  }
+};
+const updatePosting = async (req, res) => {
+  const { postId } = req.params;
+  const { 
+      location, 
+      term, 
+      type, 
+      pay, 
+      companyName, 
+      roleName,
+      description,
+      industry 
+  } = req.body;
+
+  try {
+      const query = 'CALL UpdatePosting(?, ?, ?, ?, ?, ?, ?, ?)';
+      db.query(query, [
+          postId,
+          location, 
+          term, 
+          type, 
+          pay, 
+          companyName, 
+          roleName,
+          description
+      ], (err, result) => {
+          if (err) {
+              console.error('Error updating posting:', err);
+              return res.status(500).json({ error: 'Failed to update job posting', details: err.message });
+          }
+
+          res.status(200).json({ 
+              message: 'Job posting updated successfully', 
+              postId: postId 
+          });
+      });
+  } catch (error) {
+      console.error('Unexpected error:', error);
+      res.status(500).json({ error: 'Internal server error', details: error.message });
+  }
+};
+module.exports = {allPostings, applyJob, createPosting,
+  getAllPostings,
+  deletePosting,updatePosting
+};
