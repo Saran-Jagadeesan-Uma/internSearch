@@ -6,7 +6,6 @@ const {
     getAllPostings, 
     deletePosting,
     updatePosting, 
-    getSkills   
 } = require("../controllers/postingControllers");
 const postingRoutes = express.Router()
 
@@ -16,5 +15,4 @@ postingRoutes.post('/create', createPosting)
 postingRoutes.get('/all', getAllPostings)
 postingRoutes.delete('/:postId', deletePosting)
 postingRoutes.put('/:postId', updatePosting) 
-postingRoutes.get('/skills', getSkills); 
 module.exports = postingRoutes
