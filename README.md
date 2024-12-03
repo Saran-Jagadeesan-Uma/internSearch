@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-The **InternSearch** project is a web application designed to facilitate the connection between students and internship opportunities. It provides features for users to create profiles, apply for jobs, and manage their application history. Additionally, the application includes an admin dashboard for managing job postings and user data.
+The **InternSearch** project is a web application designed to facilitate the connection between students and internship opportunities. It provides features for users to create profiles, apply for jobs, and manage their application history. Additionally, the application includes an admin dashboard for managing job postings.
 
 ## Technical Specifications
 
@@ -39,12 +39,13 @@ Before you begin, ensure you have the following software installed on your compu
 To set up the project on your local machine, follow these steps:
 
 1. **Donwload the zip and extract it**: Download the zip file from the repository and extract it to a directory of your choice and navigate to its directory in terminal.
-    - cd internSearch
+    - cd path/to/internSearch
 2. **Set Up the Backend**:
    Navigate to the server directory:
    - cd server
    - npm install
 3. **Create a .env file in the server**:
+   Create a `.env` file in the `server` directory with the following content:
    - DB_HOST="127.0.0.1"
    - DB_USER="Enter Your MySql Username here"
    - DB_PASS="Enter Your MySQL Password here"
@@ -69,7 +70,7 @@ To set up the project on your local machine, follow these steps:
 ## Usage
 - **User Registration**: Users can register to create their profiles.
 - **Job Application**: Users can apply for internships and track their application history.
-- **Admin Dashboard**: Admins can manage job postings and user information.
+- **Admin Dashboard**: Admins can manage job postings.
 
 ## Contributors
 1. Vaibhav Thalanki - https://github.com/Vaibhav-Thalanki
