@@ -1,23 +1,3 @@
-// import Category from "./Category/Category";
-// import Price from "./Price/Price";
-// import Colors from "./Colors/Colors";
-// import {Link} from "react-router-dom";
-// import "./Sidebar.css";
-
-// const Sidebar = ({ handleChange }) => {
-//   return (
-//     <>
-//       <section className="sidebar">
-//         <Category handleChange={handleChange} />
-//         <Price handleChange={handleChange} />
-//         <Colors handleChange={handleChange} />
-//       </section>
-//     </>
-//   );
-// };
-
-// export default Sidebar;
-
 import React, { useState } from "react";
 import "./Sidebar.css";
 
@@ -25,16 +5,16 @@ const Sidebar = ({ onFilterChange }) => {
   const [selectedRole, setSelectedRole] = useState("");
   const [selectedTerm, setSelectedTerm] = useState("");
 
-  // Hardcoded job roles
   const roles = [
     "All",
-    "Data Analyst Intern",
-    "Environmental Intern",
-    "Software Engineer",
-    "Software Intern"
+    "Data",
+    "Machine Learning",
+    "Security",
+    "Software",
+    "Frontend",
+    "Cloud"
   ];
 
-  //Hardcoded job terms
   const terms = [
     "All",
     "Spring",
@@ -56,7 +36,7 @@ const Sidebar = ({ onFilterChange }) => {
   return (
     <div className="sidebar">
       <div className="filter-group">
-        <h4 className="filter-title">Job Role</h4>
+        <h4 className="filter-title">Popular Keywords</h4>
         {roles.map((role, index) => (
           <div className="radio-group" key={index}>
             <input
@@ -79,13 +59,13 @@ const Sidebar = ({ onFilterChange }) => {
           <div className="radio-group" key={index}>
             <input
               type="radio"
-              id={`role-${term}`}
+              id={`term-${term}`}
               name="job-term"
               value={term}
               checked={selectedTerm === term}
               onChange={handleTermChange}
             />
-            <label htmlFor={`role-${term}`} className="radio-label">
+            <label htmlFor={`term-${term}`} className="radio-label">
               {term}
             </label>
           </div>
