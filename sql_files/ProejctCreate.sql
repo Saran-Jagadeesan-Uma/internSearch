@@ -409,8 +409,14 @@ BEGIN
     WHERE 
         A.USERNAME = input_username;
 END $$
-DELIMITER ;
 
+-- Procedure to get Admin Information for Admin Profile
+DELIMITER $$
+CREATE PROCEDURE GetAdminData(IN adminUsername VARCHAR(255))
+BEGIN
+    SELECT * FROM appAdmin WHERE USERNAME = adminUsername;
+END $$
+CALL GetAdminData('saranj');
 -- -------------------------------------------------------------------------------------\
 -- TRIGGER to prevent duplicate Applications
 DELIMITER $$

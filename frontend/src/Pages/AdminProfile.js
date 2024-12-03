@@ -1,45 +1,42 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import axios from 'axios'; // For API calls
-import { jwtDecode } from 'jwt-decode'; // Corrected import as a named import
-import "./AdminProfile.css"; // Import your CSS for styling
+import axios from 'axios'; 
+import { jwtDecode } from 'jwt-decode'; 
+import "./AdminProfile.css";
 
 const AdminProfile = () => {
     const location = useLocation();
-    const isFromAdmin = location.state?.fromAdmin; // Check if navigation is from admin
+    const isFromAdmin = location.state?.fromAdmin;
 
-    // State to hold admin data
     const [adminData, setAdminData] = useState({
         username: '',
         role: '',
         accessLevel: '',
         department: ''
     });
-
     useEffect(() => {
         const fetchAdminData = async () => {
             try {
                 const token = localStorage.getItem('token');
                 if (!token) throw new Error('No token found');
-
+    
                 const decoded = jwtDecode(token);
                 const username = decoded?.username;
-
-                // Fetch admin details from the server
-                const response = await axios.get(`http://localhost:4000/admin/${username}`); // Adjust the endpoint as necessary
+    
+                const response = await axios.get(`http://localhost:4000/admin/${username}`);
                 setAdminData(response.data);
             } catch (error) {
                 console.error('Error fetching admin data:', error);
             }
         };
-
+    
         fetchAdminData();
     }, []);
 
     return (
         <div className="admin-profile-container">
             <h1>Admin Profile Page</h1>
-            {isFromAdmin && <p>This profile was accessed from the admin dashboard.</p>}
+            {isFromAdmin}
             <div className="admin-profile-fields">
                 <div className="admin-profile-field">
                     <label htmlFor="username">Username:</label>

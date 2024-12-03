@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Formik, Field, Form, ErrorMessage, FieldArray } from 'formik';
 import * as Yup from 'yup';
 import { jwtDecode } from 'jwt-decode'; // For decoding the token
@@ -12,25 +12,26 @@ const countries = [
   "Finland", "Denmark", "New Zealand", "Other"
 ];
 
+
 const Profile = () => {
-  const defaultValues = {
-    FIRST_NAME: '',
-    LAST_NAME: '',
-    USERNAME: '',
-    GENDER: 'Other',
-    DATE_OF_BIRTH: '',
-    ADDRESS_STREET_NAME: '',
-    ADDRESS_STREET_NUM: 0,
-    ADDRESS_TOWN: '',
-    ADDRESS_STATE: '',
-    ADDRESS_ZIPCODE: '',
-    RACE: '',
-    VETERAN_STATUS: 0,
-    DISABILITY_STATUS:0,
-    CITIZENSHIP_STATUS: 'USA',
-    education: [],
-    workExperience: [],
-  };
+  const defaultValues = useMemo(() => ({
+      FIRST_NAME: '',
+      LAST_NAME: '',
+      USERNAME: '',
+      GENDER: 'Other',
+      DATE_OF_BIRTH: '',
+      ADDRESS_STREET_NAME: '',
+      ADDRESS_STREET_NUM: '',
+      ADDRESS_TOWN: '',
+      ADDRESS_STATE: '',
+      ADDRESS_ZIPCODE: '',
+      RACE: '',
+      VETERAN_STATUS: 0,
+      DISABILITY_STATUS: 0,
+      CITIZENSHIP_STATUS: 'USA',
+      education: [],
+      workExperience: [],
+  }), []);
 
   const [initialValues, setInitialValues] = useState(defaultValues);
   const [universities, setUniversities] = useState([]);
@@ -73,7 +74,6 @@ const Profile = () => {
           salary: we.SALARY || ''
         }));
 
-        // Set initial values
         setInitialValues({
           ...defaultValues,
           ...userData,
@@ -88,7 +88,7 @@ const Profile = () => {
     };
 
     fetchData();
-  }, []);
+  }, [defaultValues]);
 
   const validationSchema = Yup.object({
     FIRST_NAME: Yup.string().required('First name is required'),
@@ -126,6 +126,9 @@ const Profile = () => {
   });
 
   const handleSubmit = async (values) => {
+    console.log(values);
+    
+       
     if (values.DATE_OF_BIRTH) {
       const dateOfBirth = new Date(values.DATE_OF_BIRTH);
       values.DATE_OF_BIRTH = dateOfBirth.toISOString().split('T')[0]; // This gives the date in YYYY-MM-DD format
@@ -149,6 +152,7 @@ const Profile = () => {
     try {
       const response = await axios.put(`http://localhost:4000/users/update/${username}`, values);
       alert('Applicant information updated successfully!');
+      console.log(response.data);
     } catch (error) {
       console.error('Error updating applicant info:', error);
       alert('Failed to update applicant information.');
@@ -396,7 +400,7 @@ const Profile = () => {
                             name={`workExperience[${index}].salary`}
                             className="profile-input"
                             min="0"
-                            value="0" 
+                            defaultValue="0" 
                           />
                         </div>
 

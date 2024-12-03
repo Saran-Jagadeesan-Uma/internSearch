@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import './FormStyles.css';
-import { Link } from "react-router-dom";
+import './FormStyles.css'; // Ensure your CSS file has the new styles
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -42,59 +41,76 @@ const Register = () => {
     };
 
     return (
-        <div className="form-container">
-            <h2>Register</h2>
-            <form onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    name="username"
-                    placeholder="Username"
-                    value={formData.username}
-                    onChange={handleChange}
-                    required
-                />
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    required
-                />
-                <input
-                    type="text"
-                    name="first_name"
-                    placeholder="First Name"
-                    value={formData.first_name}
-                    onChange={handleChange}
-                    required
-                />
-                <input
-                    type="text"
-                    name="last_name"
-                    placeholder="Last Name"
-                    value={formData.last_name}
-                    onChange={handleChange}
-                    required
-                />
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                />
-                <button type="submit">Register</button>
-                {message.text && (
-                    <div className={message.type === 'error' ? 'error-message' : 'success-message'}>
-                        {message.text}
+        <div className="background">
+            <div className="form-container">
+                <h2 className="form-title">Register</h2>
+                <form onSubmit={handleSubmit}>
+                    <div className="input-group">
+                        <input
+                            type="text"
+                            name="username"
+                            placeholder="Username"
+                            value={formData.username}
+                            onChange={handleChange}
+                            required
+                            className="input-field"
+                        />
                     </div>
-                )}
-            </form>
-            <p className='login-link-register'>
-                Already an user? <Link to="/login">Log In</Link>
-            </p>
+                    <div className="input-group">
+                        <input
+                            type="password"
+                            name="password"
+                            placeholder="Password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            required
+                            className="input-field"
+                        />
+                    </div>
+                    <div className="input-group">
+                        <input
+                            type="text"
+                            name="first_name"
+                            placeholder="First Name"
+                            value={formData.first_name}
+                            onChange={handleChange}
+                            required
+                            className="input-field"
+                        />
+                    </div>
+                    <div className="input-group">
+                        <input
+                            type="text"
+                            name="last_name"
+                            placeholder="Last Name"
+                            value={formData.last_name}
+                            onChange={handleChange}
+                            required
+                            className="input-field"
+                        />
+                    </div>
+                    <div className="input-group">
+                        <input
+                            type="email"
+                            name="email"
+                            placeholder="Email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            required
+                            className="input-field"
+                        />
+                    </div>
+                    <button type="submit" className="submit-button">Register</button>
+                    {message.text && (
+                        <div className={message.type === 'error' ? 'error-message' : 'success-message'}>
+                            {message.text}
+                        </div>
+                    )}
+                </form>
+                <p className='login-link-register'>
+                    Already a user? <Link to="/login">Log In</Link>
+                </p>
+            </div>
         </div>
     );
 };

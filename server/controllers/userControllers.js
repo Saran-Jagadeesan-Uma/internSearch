@@ -260,6 +260,18 @@ const deleteUserAppInfo = async(req,res)=>{
     }
 }
 
+const getAdminData = async (req, res) => {
+    const { username } = req.params;
+    console.log('Fetching admin data for username:', username);
+
+    db.query('CALL GetAdminData(?)', [username], (err, results) => {
+        if (err) {
+            console.error('Error executing stored procedure:', err);
+            return res.status(500).json({ error: 'Database error' });
+        }
+        res.json(results[0]); 
+    });
+};
 
 module.exports = {
     registerUser,
@@ -269,5 +281,6 @@ module.exports = {
     userWorkAppInfo,
     updateUserAppInfo,
     UserAppHistoryInfo,
-    deleteUserAppInfo
+    deleteUserAppInfo,
+    getAdminData
 }
