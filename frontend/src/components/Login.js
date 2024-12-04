@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../AuthContext';
-import './FormStyles.css'; // Ensure your CSS file has the new styles
+import './FormStyles.css'; 
 
 const Login = () => {
     const [credentials, setCredentials] = useState({
