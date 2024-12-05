@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS AppAdmin (
     FOREIGN KEY (USERNAME) REFERENCES AppUser (USERNAME) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
--- Create a table that stores the Current University Details
+-- Create a table that stores the University Details
 CREATE TABLE IF NOT EXISTS University (
     NAME VARCHAR(255) PRIMARY KEY,
     FOUNDED_ON DATE,
