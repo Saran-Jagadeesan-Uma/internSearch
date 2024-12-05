@@ -1,9 +1,8 @@
-/* src/Navigation/AdminNav.css */
 nav {
   position: fixed;
   display: flex;
-  align-items: center; /* Center items vertically */
-  justify-content: space-between; /* Space items evenly */
+  align-items: center;
+  justify-content: space-between; 
   border-bottom: 2px solid #f3f3f3;
   padding: 20px;
   background-color: #fff;
@@ -11,17 +10,15 @@ nav {
   width: 100%;
 }
 
-/* Section Styling */
 nav > section {
   display: flex;
-  justify-content: space-between; /* Ensure items are spaced evenly */
-  align-items: center; /* Center items vertically */
+  justify-content: space-between;
+  align-items: center;
   width: 100%;
 }
 
-/* Logo Styling */
 .logo-container {
-  flex: 1; /* Allow the logo container to take available space */
+  flex: 1;
 }
 
 .logo-container h2 {
@@ -30,21 +27,20 @@ nav > section {
   text-decoration: none;
   font-weight: bold;
   margin: 0;
-  white-space: nowrap; /* Prevent line breaks */
-  overflow: hidden; /* Hide overflow */
-  text-overflow: ellipsis; /* Add ellipsis for overflow text */
+  white-space: nowrap; 
+  overflow: hidden;
+  text-overflow: ellipsis; 
 }
 
 .logo-container a {
   text-decoration: none;
 }
 
-/* Profile Icons Container */
 .profile-container {
   display: flex;
   align-items: center;
-  gap: 2rem; /* Adjust this value to control spacing */
-  margin-right: 20px; /* Reduce margin to fit better */
+  gap: 2rem; 
+  margin-right: 20px; 
 }
 
 .nav-link {
@@ -61,7 +57,6 @@ nav > section {
   color: #007bff;
 }
 
-/* Logout Button Styling */
 .logout-button {
   background-color: #ff4d4d;
   color: #fff;
@@ -76,11 +71,10 @@ nav > section {
   background-color: #ff1a1a;
 }
 
-/* Responsive Styling for Smaller Screens */
 @media (max-width: 700px) {
   .profile-container {
     flex-direction: column;
-    align-items: flex-end; /* Align logout button properly */
+    align-items: flex-end; 
   }
   .logout-button {
     margin-top: 10px;

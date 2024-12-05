@@ -45,10 +45,8 @@ const registerUser = async (req, res) => {
             if (err) return res.status(500).json({ error: err.message });
             if (results.length > 0) return res.status(400).json({ message: 'Username already exists' });
 
-            // Hash password
             const hashedPassword = await bcrypt.hash(password, 10);
 
-            // Insert new user
             db.query('INSERT INTO AppUser  (USERNAME, PASSWORD, FIRST_NAME, LAST_NAME, EMAIL) VALUES (?, ?, ?, ?, ?)',
                 [username, hashedPassword, first_name, last_name, email], (err, results) => {
                     if (err) return res.status(500).json({ error: err.message });
@@ -112,7 +110,6 @@ const updateUserAppInfo = async (req, res) => {
 
     try {
         await connection.query('START TRANSACTION');
-        // Call the stored procedure
         await connection.query('CALL update_user_app_info(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)', [
             username,
             FIRST_NAME,
@@ -173,14 +170,11 @@ const updateUserAppInfo = async (req, res) => {
             ]);
         });
 
-
-        // Wait for all insert queries to finish
         await Promise.all(insertEducationPromises);
         await Promise.all(insertWorkExpPromises);
 
         await connection.query('COMMIT');
-
-        // Send success response
+        
         res.status(200).json({ message: 'User Profile information updated successfully.' });
     } catch (error) {
         console.error('Error updating User Profile info:', error);

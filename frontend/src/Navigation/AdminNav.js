@@ -1,4 +1,3 @@
-// src/Navigation/AdminNav.js
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { CiUser  } from "react-icons/ci";
@@ -8,8 +7,8 @@ const AdminNav = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.clear(); // Clear all local storage data
-    navigate("/login"); // Redirect to login page
+    localStorage.clear();
+    navigate("/login"); 
   };
 
   const goToProfile = () => {
@@ -25,7 +24,6 @@ const AdminNav = () => {
       </div>
       <section>
         <div className="nav-container">
-          {/* Other possible nav items can go here */}
         </div>
         <div className="profile-container">
           <button className="nav-link" onClick={goToProfile}>

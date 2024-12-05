@@ -1,4 +1,3 @@
-
 const Card = ({ key, company, position, deadline }) => {
     return (
     <>
@@ -11,5 +10,4 @@ const Card = ({ key, company, position, deadline }) => {
     </>
   );
 };
-
 export default Card;

@@ -40,7 +40,7 @@ export default function ApplicationHistory() {
 
   useEffect(() => {
     fetchApplicationHistory();
-  }, []); // Empty dependency array
+  }, []); 
 
   const handleWithdraw = async (postId) => {
     try {
@@ -58,7 +58,6 @@ export default function ApplicationHistory() {
           }
         });
 
-        // Refresh the application list after successful withdrawal
         fetchApplicationHistory();
       }
     } catch (err) {

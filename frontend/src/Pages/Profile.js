@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Formik, Field, Form, ErrorMessage, FieldArray } from 'formik';
 import * as Yup from 'yup';
-import { jwtDecode } from 'jwt-decode'; // For decoding the token
-import axios from 'axios'; // For API calls
+import { jwtDecode } from 'jwt-decode'; 
+import axios from 'axios'; 
 import "./Profile.css";
 
 const countries = [
@@ -129,18 +129,17 @@ const Profile = () => {
   
     if (values.DATE_OF_BIRTH) {
       const dateOfBirth = new Date(values.DATE_OF_BIRTH);
-      values.DATE_OF_BIRTH = dateOfBirth.toISOString().split('T')[0]; // This gives the date in YYYY-MM-DD format
+      values.DATE_OF_BIRTH = dateOfBirth.toISOString().split('T')[0];
     }
 
-    // Transform each grad date in the education array
     if (values.education && Array.isArray(values.education)) {
       values.education.forEach((edu) => {
         if (edu.graddate) {
           if (edu.graddate === '') {
-            edu.graddate = null; // If the gradDate is an empty string, set it to null
+            edu.graddate = null; 
           } else {
             const gradDate = new Date(edu.graddate);
-            edu.graddate = gradDate.toISOString().split('T')[0]; // This gives the date in YYYY-MM-DD format
+            edu.graddate = gradDate.toISOString().split('T')[0]; 
           }
         }
       });
@@ -169,7 +168,6 @@ const Profile = () => {
       >
         {({ values }) => (
           <Form className="profile-form">
-            {/* Personal Information Section */}
             <div className="profile-personal-info">
               <h2 className="profile-section-heading">Personal Information</h2>
 
@@ -347,7 +345,6 @@ const Profile = () => {
               </FieldArray>
             </section>
 
-            {/* Work Experience Section */}
             <section className="profile-work-experience">
               <h2 className="profile-section-heading">Work Experience</h2>
               <FieldArray name="workExperience">
@@ -417,7 +414,6 @@ const Profile = () => {
               </FieldArray>
             </section>
 
-            {/* Submit Button */}
             <div className="profile-submit">
               <button type="submit" className="profile-submit-btn">Submit</button>
             </div>

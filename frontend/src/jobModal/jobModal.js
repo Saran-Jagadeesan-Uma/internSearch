@@ -1,7 +1,7 @@
 import React from "react";
 import Modal from "react-modal";
 import "./jobModal.css"; 
-import { jwtDecode } from 'jwt-decode'; // For decoding the token
+import { jwtDecode } from 'jwt-decode';
 
 Modal.setAppElement("#root"); 
 

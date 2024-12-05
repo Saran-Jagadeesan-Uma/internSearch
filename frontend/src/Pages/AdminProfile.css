@@ -1,23 +1,23 @@
 .admin-profile-container {
-    max-width: 800px; /* Match profile container width */
+    max-width: 800px; 
     margin: 0 auto;
     padding: 30px;
-    background-color: #ffffff; /* White background for contrast */
-    border-radius: 10px; /* Match profile border radius */
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Match profile box shadow */
+    background-color: #ffffff; 
+    border-radius: 10px; 
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); 
 }
 
 .admin-profile-heading {
-    font-size: 2.5rem; /* Match profile heading size */
+    font-size: 2.5rem; 
     text-align: center;
-    margin-bottom: 40px; /* Increased space below heading */
-    color: #007bff; /* Dark text color for contrast */
+    margin-bottom: 40px; 
+    color: #007bff;
 }
 
 .admin-profile-fields {
     display: flex;
     flex-direction: column;
-    gap: 25px; /* Space between fields */
+    gap: 25px; 
 }
 
 .admin-profile-field {
@@ -28,51 +28,49 @@
 .admin-profile-field label {
     font-weight: bold;
     margin-bottom: 8px;
-    font-size: 1.1rem; /* Consistent font size */
-    color: #555; /* Slightly lighter color */
+    font-size: 1.1rem; 
+    color: #555;
 }
 
-/* Add margin to the first field if you prefer this approach */
 .admin-profile-field:first-child {
-    margin-top: 20px; /* Add space above the first field */
+    margin-top: 20px; 
 }
 
 .admin-profile-field input {
-    padding: 12px; /* Match profile input padding */
-    font-size: 1rem; /* Match font size */
+    padding: 12px;
+    font-size: 1rem;
     border: 1px solid #ccc;
-    border-radius: 5px; /* Match profile border radius */
-    background-color: #f9f9f9; /* Input background color */
-    cursor: not-allowed; /* Indicate read-only */
-    transition: border-color 0.3s; /* Smooth transition for border color */
+    border-radius: 5px; 
+    background-color: #f9f9f9;
+    cursor: not-allowed;
+    transition: border-color 0.3s;
 }
 
 .admin-profile-field input:hover {
-    border-color: #007bff; /* Change border color on hover */
+    border-color: #007bff;
 }
 
 .admin-profile-error {
-    color: #ff0000; /* Error text color */
-    font-size: 0.9rem; /* Consistent font size for error messages */
-    margin-top: 5px; /* Space above error message */
+    color: #ff0000; 
+    font-size: 0.9rem; 
+    margin-top: 5px;
 }
 
 .admin-profile-field input {
-    padding: 12px; /* Match profile input padding */
-    font-size: 1rem; /* Match font size */
+    padding: 12px;
+    font-size: 1rem; 
     border: 1px solid #ccc;
-    border-radius: 5px; /* Match profile border radius */
-    background-color: #f9f9f9; /* Input background color */
-    cursor: not-allowed; /* Indicate read-only */
-    transition: border-color 0.3s, color 0.3s; /* Smooth transition for border color and text color */
+    border-radius: 5px; 
+    background-color: #f9f9f9; 
+    cursor: not-allowed;
+    transition: border-color 0.3s, color 0.3s; 
 }
 
-/* Change text color to blue on hover */
 .admin-profile-field input:hover {
-    border-color: #007bff; /* Change border color on hover */
-    color: #007bff; /* Change text color to blue on hover */
+    border-color: #007bff;
+    color: #007bff;
 }
 
 .admin-profile-field input:focus {
-    outline: none; /* Remove outline on focus */
+    outline: none;
 }

@@ -11,7 +11,6 @@ nav {
   
 }
 
-/* Logo Styling */
 .logo-container h2 {
   font-size: 1.8rem;
   color: #333;
@@ -24,7 +23,6 @@ nav {
   text-decoration: none;
 }
 
-/* Section Styling */
 nav>section {
   display: flex;
   justify-content: space-between;
@@ -33,7 +31,6 @@ nav>section {
   margin-left: 70px;
 }
 
-/* Navigation Container */
 .nav-container {
   display: flex;
   align-items: center;
@@ -49,7 +46,6 @@ nav>section {
   outline: none;
 }
 
-/* Profile Icons Container */
 .profile-container {
   display: flex;
   align-items: center;
@@ -76,21 +72,19 @@ div.nav-container .search-input{
 }
 
 
-/* Responsive Styling for Smaller Screens */
 @media (max-width: 1200px) {
   .logo-container h2 {
-    font-size: 1.2rem; /* Reduce font size for medium screens */
+    font-size: 1.2rem;
   }
 }
 
 @media (max-width: 700px) {
   .logo-container h2 {
-    font-size: 1rem; /* Reduce font size further for small screens */
-    text-align: center; /* Center-align the logo */
+    font-size: 1rem; 
+    text-align: center; 
   }
 }
 
-/* Add styling for Logout Button */
 .logout-button {
   background-color: #ff4d4d;
   color: #fff;
@@ -105,11 +99,10 @@ div.nav-container .search-input{
   background-color: #ff1a1a;
 }
 
-/* Adjust responsive styling */
 @media (max-width: 700px) {
   .profile-container {
     flex-direction: column;
-    align-items: flex-end; /* Align logout button properly */
+    align-items: flex-end;
   }
   .logout-button {
     margin-top: 10px;

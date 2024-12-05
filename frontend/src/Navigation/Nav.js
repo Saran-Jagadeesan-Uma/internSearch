@@ -8,22 +8,19 @@ const Nav = ({ handleInputChange, query }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.clear(); // Clear all local storage data
-    navigate("/login"); // Redirect to login page
+    localStorage.clear(); 
+    navigate("/login");
   };
 
   return (
     <nav>
-      {/* Logo Container */}
       <div className="logo-container">
         <Link to="/">
           <h2>InternSearch</h2>
         </Link>
       </div>
 
-      {/* Main Navigation Section */}
       <section>
-        {/* Search Input */}
         <div className="nav-container">
           <input
             className="search-input"
@@ -34,7 +31,6 @@ const Nav = ({ handleInputChange, query }) => {
           />
         </div>
 
-        {/* Profile and Icons Section */}
         <div className="profile-container">
           
           <Link to="/applicationHistory" className="nav-link">

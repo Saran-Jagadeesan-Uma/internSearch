@@ -74,11 +74,9 @@ const createPosting = async (req, res) => {
   try {
       let companyNameOut;
 
-      // Call the stored procedure to add company if it doesn't exist
       const companyQuery = 'CALL AddCompanyIfNotExists(?, ?, @companyNameOut);';
       db.query(companyQuery, [companyName, industry], (err) => {
           if (err) {
-              // Check for the specific error message
               if (err.code === 'ER_SIGNAL_EXCEPTION' && err.sqlMessage.includes('Existing company found with a different industry.')) {
                   return res.status(409).json({ error: 'Existing company found with a different industry.' });
               }
@@ -86,7 +84,6 @@ const createPosting = async (req, res) => {
               return res.status(500).json({ error: 'Failed to check or add company', details: err.message });
           }
 
-          // Retrieve the company name output
           db.query('SELECT @companyNameOut AS companyNameOut;', (err, result) => {
               if (err) {
                   console.error('Error retrieving company name:', err);
@@ -95,7 +92,6 @@ const createPosting = async (req, res) => {
 
               companyNameOut = result[0].companyNameOut;
 
-              // Now create the posting using the company name
               const query = 'CALL CreatePosting(?, ?, ?, ?, ?, ?, ?, ?)';
               db.query(query, [
                   location, 

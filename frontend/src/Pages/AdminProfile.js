@@ -31,9 +31,6 @@ const AdminProfile = () => {
     
                 const response = await axios.get(`http://localhost:4000/users/admin/${username}`);
     
-            
-    
-                // Explicitly map the data, taking care of case sensitivity
                 setAdminData({
                     username: response.data.USERNAME || response.data.username || '',
                     role: response.data.ROLE || response.data.role || '',

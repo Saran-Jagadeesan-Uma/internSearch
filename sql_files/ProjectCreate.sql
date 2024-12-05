@@ -83,7 +83,6 @@ CREATE TABLE IF NOT EXISTS Company (
     PRIMARY KEY (NAME)
 );
 
-DROP TABLE IF EXISTS WorksIn;
 -- Table to denote the many-to-many relationship between Applicant and Company
 CREATE TABLE IF NOT EXISTS WorksIn (
     USERNAME VARCHAR(255),
@@ -184,12 +183,9 @@ CREATE PROCEDURE EditPosting(
     IN description TEXT
 )
 BEGIN
-    -- Check if the company exists
     IF NOT EXISTS (SELECT 1 FROM Company WHERE NAME = companyName) THEN
-        -- Insert the company if it doesn't exist
         INSERT INTO Company (NAME) VALUES (companyName);
     END IF;
-    -- Update the posting
     UPDATE Posting
     SET 
         LOCATION = location,
@@ -219,13 +215,10 @@ CREATE PROCEDURE CreatePosting(
     IN description TEXT
 )
 BEGIN
-    -- Check if the company exists
     IF NOT EXISTS (SELECT 1 FROM Company WHERE NAME = companyName) THEN
-        -- Insert the company if it doesn't exist
         INSERT INTO Company (NAME) VALUES (companyName);
     END IF;
 
-    -- Now insert the posting
     INSERT INTO Posting (LOCATION, TERM, TYPE, DATE_POSTED, PAY, ROLE_NAME, CREATED_BY, COMPANY_NAME, DESCRIPTION)
     VALUES (location, term, type, NOW(), pay, roleName, createdBy, companyName, description);
 END $$
@@ -236,33 +229,27 @@ DELIMITER ;
 
 
 -- Procedure to add a company if it does not exist
-DELIMITER //
+DELIMITER $$
 CREATE PROCEDURE AddCompanyIfNotExists(IN companyName VARCHAR(255), IN industry VARCHAR(255), OUT companyNameOut VARCHAR(255))
 BEGIN
     DECLARE existingIndustry VARCHAR(255);
-    -- Check if the company already exists
     SELECT INDUSTRY INTO existingIndustry FROM Company WHERE NAME = companyName LIMIT 1;
     IF existingIndustry IS NOT NULL THEN
-        -- If the company exists, check if the industry matches
         IF existingIndustry != industry THEN
-            -- Throw an error if the industry does not match
             SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Existing company found with a different industry.';
         END IF;
     ELSE
-        -- Insert the new company if it doesn't exist
         INSERT INTO Company (NAME, INDUSTRY) VALUES (companyName, industry);
     END IF;
-
-    -- Set the output variable
     SET companyNameOut = companyName;
-END //
+END $$
 DELIMITER ;
 
 
 
 
 -- Admin Updates posting using this procedure
-DELIMITER //
+DELIMITER $$
 CREATE PROCEDURE UpdatePosting(
     IN p_post_id INT,
     IN p_location VARCHAR(255),
@@ -284,7 +271,7 @@ BEGIN
         ROLE_NAME = p_role_name,
         DESCRIPTION = p_description
     WHERE POST_ID = p_post_id;
-END //
+END $$
 DELIMITER ;
 
 
@@ -319,10 +306,7 @@ CREATE PROCEDURE update_user_app_info (
     IN p_citizenship_status VARCHAR(50)
 )
 BEGIN
-    -- Start a transaction
     START TRANSACTION;
-
-    -- Update Applicant table
     UPDATE Applicant
     SET 
         GENDER = p_gender, 
@@ -337,15 +321,11 @@ BEGIN
         DISABILITY_STATUS = p_disability_status, 
         CITIZENSHIP_STATUS = p_citizenship_status
     WHERE USERNAME = p_username;
-
-    -- Update AppUser table
     UPDATE AppUser
     SET 
         FIRST_NAME = p_first_name, 
         LAST_NAME = p_last_name
     WHERE USERNAME = p_username;
-
-    -- Commit the transaction
     COMMIT;
 END$$
 DELIMITER ;
@@ -410,12 +390,17 @@ BEGIN
         A.USERNAME = input_username;
 END $$
 
+
+
 -- Procedure to get Admin Information for Admin Profile
 DELIMITER $$
 CREATE PROCEDURE GetAdminData(IN adminUsername VARCHAR(255))
 BEGIN
     SELECT * FROM appAdmin WHERE USERNAME = adminUsername;
 END $$
+
+
+
 -- -------------------------------------------------------------------------------------\
 -- TRIGGER to prevent duplicate Applications
 DELIMITER $$

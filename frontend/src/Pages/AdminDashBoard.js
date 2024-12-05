@@ -45,17 +45,14 @@ const AdminDashboard = () => {
         e.preventDefault();
         try {
             if (editingPosting) {
-                // Update existing posting
                 await axios.put(`http://localhost:4000/postings/${editingPosting}`, formData);
                 alert('Job posting updated successfully!');
                 setEditingPosting(null);
             } else {
-                // Create new posting
                 await axios.post('http://localhost:4000/postings/create', formData);
                 alert('Job posting created successfully!');
             }
             
-            // Reset form and refresh postings
             setFormData({
                 location: '',
                 term: '',
@@ -75,7 +72,6 @@ const AdminDashboard = () => {
     };
 
     const handleEditPosting = (posting) => {
-        // Populate form with existing posting data
         setEditingPosting(posting.POST_ID);
         setFormData({
             location: posting.LOCATION,
