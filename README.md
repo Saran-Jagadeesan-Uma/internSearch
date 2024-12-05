@@ -85,7 +85,7 @@ To set up the project on your local machine, follow these steps:
    npm start
    ```
 
-6. **Access the Application**:  
+5. **Access the Application**:  
    The application should now be running at http://localhost:3000/login  
 
 
